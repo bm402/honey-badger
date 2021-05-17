@@ -5,8 +5,8 @@ import { HoneyBadgerStack } from '../lib/honey-badger-stack';
 
 const app = new cdk.App();
 new HoneyBadgerStack(app, 'HoneyBadgerStack', {
-  env: { 
-      account: process.env.CDK_DEFAULT_ACCOUNT,
-      region: process.env.CDK_DEFAULT_REGION
+    env: { 
+        account: process.env.CDK_DEFAULT_ACCOUNT,
+        region: process.env.CDK_DEFAULT_REGION
     },
 });
