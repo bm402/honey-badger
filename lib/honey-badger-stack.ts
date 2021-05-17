@@ -20,8 +20,7 @@ export class HoneyBadgerStack extends cdk.Stack {
             allowAllOutbound: true,
         });
 
-        // temporary SSH access
-        securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(22));
+        // SSH access
         securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(44422));
 
         const instanceType = ec2.InstanceType.of(ec2.InstanceClass.T2, ec2.InstanceSize.MICRO);
