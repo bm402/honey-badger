@@ -39,7 +39,7 @@ if [ ! -d honey-badger ]; then
 fi
 cd honey-badger
 git fetch --all
-git checkout cdk-setup
+git checkout main
 
 # run listeners
 go run listener/cmd/main.go
