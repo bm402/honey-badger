@@ -6,6 +6,7 @@ import (
 	"net"
 	"os"
 	"strings"
+	"time"
 )
 
 func main() {
@@ -27,6 +28,7 @@ func listen(port string) {
 		if err != nil {
 			log.Fatal("Error accepting connection on port", port)
 		}
+		conn.SetDeadline(time.Now().Add(15 * time.Minute))
 		go handle(conn, port)
 	}
 }
