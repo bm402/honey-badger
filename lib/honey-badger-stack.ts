@@ -23,6 +23,13 @@ export class HoneyBadgerStack extends cdk.Stack {
         // SSH access
         securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(44422));
 
+        // honeypot port access
+        const commonPorts: number[] = [21,22,23,53,80,110,135,139,143,443,445,993,995,1723,3306,3389,5900,8080];
+        for (let port of commonPorts) {
+            securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(port));
+            securityGroup.addIngressRule(ec2.Peer.anyIpv6(), ec2.Port.tcp(port));
+        }
+
         const instanceType = ec2.InstanceType.of(ec2.InstanceClass.T2, ec2.InstanceSize.MICRO);
 
         const machineImage = ec2.MachineImage.latestAmazonLinux({
