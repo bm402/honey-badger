@@ -31,7 +31,7 @@ yum install -y golang
 # switch to ec2-user
 su ec2-user
 export HOME=/home/ec2-user
-export AWS_REGION=eu-west-2
+export AWS_REGION=$(curl http://169.254.169.254/latest/meta-data/placement/region)
 
 # download listener code
 cd ~
@@ -40,7 +40,7 @@ if [ ! -d honey-badger ]; then
 fi
 cd honey-badger
 git fetch --all
-git checkout log-db
+git checkout main
 git pull
 
 # run listeners
