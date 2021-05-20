@@ -40,6 +40,7 @@ fi
 cd honey-badger
 git fetch --all
 git checkout log-db
+git pull
 
 # run listeners
 go build -o honey-badger-listener listener/listener.go
