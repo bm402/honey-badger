@@ -4,6 +4,7 @@ import (
 	"flag"
 	"log"
 	"net"
+	"os"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -14,11 +15,12 @@ import (
 	"github.com/aws/aws-sdk-go/service/ssm"
 )
 
-type rawLogEntry struct {
-	ingress_port string
-	timestamp    string
-	ip_address   string
-	input        string
+// struct for log entry to dynamodb
+type RawLogEntry struct {
+	IngressPort string `json:"ingress_port"`
+	Timestamp   string `json:"timestamp"`
+	IpAddress   string `json:"ip_address"`
+	Input       string `json:"input"`
 }
 
 var (
@@ -28,7 +30,11 @@ var (
 
 // gets parameters and sets up dynamodb session
 func init() {
-	session, err := session.NewSession()
+	region := os.Getenv("AWS_REGION")
+
+	session, err := session.NewSession(&aws.Config{
+		Region: aws.String(region),
+	})
 	if err != nil {
 		log.Fatal("Error creating aws session")
 	}
@@ -38,7 +44,7 @@ func init() {
 		Name: aws.String("RawLogsTableName"),
 	})
 	if err != nil {
-		log.Fatal("Error getting raw logs table name from ssm parameter store")
+		log.Fatal("Error getting raw logs table name from ssm parameter store:", err.Error())
 	}
 
 	dynamoClient = dynamodb.New(session)
@@ -90,11 +96,11 @@ func handle(conn net.Conn, port string) {
 
 // writes inputs from the tcp connection to dynamodb table
 func writeInputsToRawLogsTable(conn net.Conn, port string, input string) {
-	rawLogEntry := rawLogEntry{
-		ingress_port: port,
-		timestamp:    time.Now().String(),
-		ip_address:   conn.RemoteAddr().String(),
-		input:        input,
+	rawLogEntry := RawLogEntry{
+		IngressPort: port,
+		Timestamp:   time.Now().String(),
+		IpAddress:   conn.RemoteAddr().String(),
+		Input:       input,
 	}
 
 	dynamoDocument, err := dynamodbattribute.MarshalMap(rawLogEntry)
@@ -102,12 +108,14 @@ func writeInputsToRawLogsTable(conn net.Conn, port string, input string) {
 		log.Fatal("Error creating dynamodb document")
 	}
 
+	log.Println(dynamoDocument)
+
 	putItemInput := &dynamodb.PutItemInput{
 		Item:      dynamoDocument,
 		TableName: aws.String(rawLogsTableName),
 	}
 	_, err = dynamoClient.PutItem(putItemInput)
 	if err != nil {
-		log.Fatal("Error writing log entry to dynamodb")
+		log.Fatal("Error writing log entry to dynamodb:", err.Error())
 	}
 }
