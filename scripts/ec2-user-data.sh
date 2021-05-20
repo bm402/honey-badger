@@ -31,6 +31,7 @@ yum install -y golang
 # switch to ec2-user
 su ec2-user
 export HOME=/home/ec2-user
+export AWS_REGION=$(curl http://169.254.169.254/latest/meta-data/placement/region)
 
 # download listener code
 cd ~
@@ -40,9 +41,12 @@ fi
 cd honey-badger
 git fetch --all
 git checkout main
+git pull
 
 # run listeners
-go build -o honey-badger-listener listener/listener.go
+cd listener
+go install
+go build -o honey-badger-listener listener.go
 common_ports=(21 22 23 53 80 110 135 139 143 443 445 993 995 1723 3306 3389 5900 8080)
 for port in "${common_ports[@]}"; do
     nohup ./honey-badger-listener -p "$port" &>/dev/null &

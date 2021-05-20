@@ -5,9 +5,51 @@ import (
 	"log"
 	"net"
 	"os"
-	"strings"
 	"time"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
+	"github.com/aws/aws-sdk-go/service/ssm"
 )
+
+// struct for log entry to dynamodb
+type RawLogEntry struct {
+	IngressPort string `json:"ingress_port"`
+	Timestamp   string `json:"timestamp"`
+	IpAddress   string `json:"ip_address"`
+	Input       string `json:"input"`
+}
+
+var (
+	dynamoClient     dynamodbiface.DynamoDBAPI
+	rawLogsTableName string
+)
+
+// gets parameters and sets up dynamodb session
+func init() {
+	region := os.Getenv("AWS_REGION")
+
+	session, err := session.NewSession(&aws.Config{
+		Region: aws.String(region),
+	})
+	if err != nil {
+		log.Fatal("Error creating aws session")
+	}
+
+	ssmClient := ssm.New(session)
+	getParameterOutput, err := ssmClient.GetParameter(&ssm.GetParameterInput{
+		Name: aws.String("RawLogsTableName"),
+	})
+	if err != nil {
+		log.Fatal("Error getting raw logs table name from ssm parameter store:", err.Error())
+	}
+
+	dynamoClient = dynamodb.New(session)
+	rawLogsTableName = aws.StringValue(getParameterOutput.Parameter.Value)
+}
 
 func main() {
 	port := flag.String("p", "8081", "Port to listen on")
@@ -47,23 +89,33 @@ func handle(conn net.Conn, port string) {
 		if err != nil {
 			break
 		}
-		inputs := strings.Split(string(buf[:rawInputLen]), "\n")
-		writeInputsToLog(conn, port, inputs)
+		input := string(buf[:rawInputLen])
+		writeInputsToRawLogsTable(conn, port, input)
 	}
 }
 
-// writes inputs from the tcp connection to a log file
-func writeInputsToLog(conn net.Conn, port string, inputs []string) {
-	file, err := os.OpenFile("honey-badger-port-"+port+".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		log.Fatal(err)
+// writes inputs from the tcp connection to dynamodb table
+func writeInputsToRawLogsTable(conn net.Conn, port string, input string) {
+	rawLogEntry := RawLogEntry{
+		IngressPort: port,
+		Timestamp:   time.Now().String(),
+		IpAddress:   conn.RemoteAddr().String(),
+		Input:       input,
 	}
-	defer file.Close()
 
-	logger := log.New(file, "", log.LstdFlags)
-	for _, input := range inputs {
-		if len(input) > 0 {
-			logger.Println("|", conn.RemoteAddr().String(), "|", input)
-		}
+	dynamoDocument, err := dynamodbattribute.MarshalMap(rawLogEntry)
+	if err != nil {
+		log.Fatal("Error creating dynamodb document")
+	}
+
+	log.Println(dynamoDocument)
+
+	putItemInput := &dynamodb.PutItemInput{
+		Item:      dynamoDocument,
+		TableName: aws.String(rawLogsTableName),
+	}
+	_, err = dynamoClient.PutItem(putItemInput)
+	if err != nil {
+		log.Fatal("Error writing log entry to dynamodb:", err.Error())
 	}
 }
