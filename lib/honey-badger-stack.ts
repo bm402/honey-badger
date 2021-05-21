@@ -22,7 +22,7 @@ export class HoneyBadgerStack extends cdk.Stack {
             },
             sortKey: {
                 name: 'timestamp',
-                type: dynamodb.AttributeType.STRING,
+                type: dynamodb.AttributeType.NUMBER,
             },
             readCapacity: 2,
             writeCapacity: 2,
