@@ -5,6 +5,7 @@ import (
 	"net"
 	"strings"
 	"time"
+	"unicode"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -23,7 +24,8 @@ type RawLogEntry struct {
 }
 
 // writes inputs from the tcp connection to dynamodb table
-func writeInputsToRawLogsTable(conn net.Conn, port string, input string) {
+func writeInputsToRawLogsTable(conn net.Conn, port string, rawInput string) {
+	input := sanitise(rawInput)
 
 	// timestamp in epoch millis
 	timestamp := int64(time.Nanosecond) * time.Now().UnixNano() / int64(time.Millisecond)
@@ -56,4 +58,14 @@ func writeInputsToRawLogsTable(conn net.Conn, port string, input string) {
 	if err != nil {
 		log.Fatal("Error writing log entry to dynamodb: ", err.Error())
 	}
+}
+
+// removes binary data from input string which causes serialisation errors
+func sanitise(rawInput string) string {
+	for _, char := range rawInput {
+		if !unicode.IsGraphic(char) && !unicode.IsControl(char) {
+			return "<binary>"
+		}
+	}
+	return rawInput
 }

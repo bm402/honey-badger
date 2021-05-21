@@ -27,6 +27,7 @@ func listen(port string) {
 func handle(conn net.Conn, port string) {
 	defer conn.Close()
 	buf := make([]byte, 2048)
+
 	for {
 		_, err := conn.Write([]byte("$ "))
 		if err != nil {
@@ -37,6 +38,7 @@ func handle(conn net.Conn, port string) {
 		if err != nil {
 			break
 		}
+
 		input := string(buf[:rawInputLen])
 		writeInputsToRawLogsTable(conn, port, input)
 	}
