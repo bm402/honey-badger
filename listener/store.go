@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -12,10 +13,13 @@ import (
 
 // struct for log entry to dynamodb
 type RawLogEntry struct {
-	IngressPort string `json:"ingress_port"`
-	Timestamp   int64  `json:"timestamp"`
-	IpAddress   string `json:"ip_address"`
-	Input       string `json:"input"`
+	IngressPort string  `json:"ingress_port"`
+	Timestamp   int64   `json:"timestamp"`
+	IpAddress   string  `json:"ip_address"`
+	Location    string  `json:"location"`
+	Lat         float64 `json:"lat"`
+	Lon         float64 `json:"lon"`
+	Input       string  `json:"input"`
 }
 
 // writes inputs from the tcp connection to dynamodb table
@@ -24,10 +28,18 @@ func writeInputsToRawLogsTable(conn net.Conn, port string, input string) {
 	// timestamp in epoch millis
 	timestamp := int64(time.Nanosecond) * time.Now().UnixNano() / int64(time.Millisecond)
 
+	remoteAddress := conn.RemoteAddr().String()
+	ipAddress := strings.Split(remoteAddress, ":")[0]
+
+	ipLocationData := getIpLocationData(ipAddress)
+
 	rawLogEntry := RawLogEntry{
 		IngressPort: port,
 		Timestamp:   timestamp,
-		IpAddress:   conn.RemoteAddr().String(),
+		IpAddress:   ipAddress,
+		Location:    ipLocationData.Location,
+		Lat:         ipLocationData.Lat,
+		Lon:         ipLocationData.Lon,
 		Input:       input,
 	}
 
@@ -35,8 +47,6 @@ func writeInputsToRawLogsTable(conn net.Conn, port string, input string) {
 	if err != nil {
 		log.Fatal("Error creating dynamodb document:", err.Error())
 	}
-
-	log.Println(dynamoDocument)
 
 	putItemInput := &dynamodb.PutItemInput{
 		Item:      dynamoDocument,
