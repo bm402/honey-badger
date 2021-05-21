@@ -24,7 +24,7 @@ func getIpLocationData(ipAddress string) IpLocationData {
 
 	response, err := http.Get("http://ip-api.com/json/" + ipAddress + "?fields=49369")
 	if err != nil {
-		log.Fatal("Error querying the ip-api:", err.Error())
+		log.Fatal("Error querying the ip-api: ", err.Error())
 	}
 
 	// retry if necessary
@@ -33,7 +33,7 @@ func getIpLocationData(ipAddress string) IpLocationData {
 		backoffStr := response.Header.Get("X-Ttl")
 		backoff, err := strconv.ParseInt(backoffStr, 10, 64)
 		if err != nil {
-			log.Fatal("Error converting backoff header to int:", err.Error())
+			log.Fatal("Error converting backoff header to int: ", err.Error())
 		}
 
 		time.Sleep(time.Duration(backoff+1) * time.Second)
@@ -43,14 +43,14 @@ func getIpLocationData(ipAddress string) IpLocationData {
 
 		body, err := ioutil.ReadAll(response.Body)
 		if err != nil {
-			log.Fatal("Error reading response body from ip-api:", err.Error())
+			log.Fatal("Error reading response body from ip-api: ", err.Error())
 		}
 		defer response.Body.Close()
 
 		bodyParams := make(map[string]interface{})
 		err = json.Unmarshal(body, &bodyParams)
 		if err != nil {
-			log.Fatal("Error unmarshalling body params from ip-api:", err.Error())
+			log.Fatal("Error unmarshalling body params from ip-api: ", err.Error())
 		}
 
 		city := getOrEmptyString(bodyParams, "city")

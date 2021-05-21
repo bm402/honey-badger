@@ -45,7 +45,7 @@ func writeInputsToRawLogsTable(conn net.Conn, port string, input string) {
 
 	dynamoDocument, err := dynamodbattribute.MarshalMap(rawLogEntry)
 	if err != nil {
-		log.Fatal("Error creating dynamodb document:", err.Error())
+		log.Fatal("Error creating dynamodb document: ", err.Error())
 	}
 
 	putItemInput := &dynamodb.PutItemInput{
@@ -54,6 +54,6 @@ func writeInputsToRawLogsTable(conn net.Conn, port string, input string) {
 	}
 	_, err = dynamoClient.PutItem(putItemInput)
 	if err != nil {
-		log.Fatal("Error writing log entry to dynamodb:", err.Error())
+		log.Fatal("Error writing log entry to dynamodb: ", err.Error())
 	}
 }

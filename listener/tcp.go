@@ -10,13 +10,13 @@ import (
 func listen(port string) {
 	ln, err := net.Listen("tcp", ":"+port)
 	if err != nil {
-		log.Fatal("Error creating listener on port", port, ":", err.Error())
+		log.Fatal("Error creating listener on port ", port, ": ", err.Error())
 	}
 
 	for {
 		conn, err := ln.Accept()
 		if err != nil {
-			log.Fatal("Error accepting connection on port", port, ":", err.Error())
+			log.Fatal("Error accepting connection on port", port, ": ", err.Error())
 		}
 		conn.SetDeadline(time.Now().Add(15 * time.Minute))
 		go handle(conn, port)

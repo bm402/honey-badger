@@ -25,7 +25,7 @@ func init() {
 		Region: aws.String(region),
 	})
 	if err != nil {
-		log.Fatal("Error creating aws session:", err.Error())
+		log.Fatal("Error creating aws session: ", err.Error())
 	}
 
 	ssmClient := ssm.New(session)
@@ -33,7 +33,7 @@ func init() {
 		Name: aws.String("RawLogsTableName"),
 	})
 	if err != nil {
-		log.Fatal("Error getting raw logs table name from ssm parameter store:", err.Error())
+		log.Fatal("Error getting raw logs table name from ssm parameter store: ", err.Error())
 	}
 
 	dynamoClient = dynamodb.New(session)
