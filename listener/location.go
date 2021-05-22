@@ -20,7 +20,10 @@ type IpLocationData struct {
 // retrieves ip location data from ip-api.com
 func getIpLocationData(ipAddress string) IpLocationData {
 
-	ipLocationData := IpLocationData{}
+	// return cached location data if possible
+	if ipLocationData, ok := ipApiCache[ipAddress]; ok {
+		return ipLocationData
+	}
 
 	response, err := http.Get("http://ip-api.com/json/" + ipAddress + "?fields=49369")
 	if err != nil {
@@ -37,30 +40,33 @@ func getIpLocationData(ipAddress string) IpLocationData {
 		}
 
 		time.Sleep(time.Duration(backoff+1) * time.Second)
-		ipLocationData = getIpLocationData(ipAddress)
-
-	} else {
-
-		body, err := ioutil.ReadAll(response.Body)
-		if err != nil {
-			log.Fatal("Error reading response body from ip-api: ", err.Error())
-		}
-		defer response.Body.Close()
-
-		bodyParams := make(map[string]interface{})
-		err = json.Unmarshal(body, &bodyParams)
-		if err != nil {
-			log.Fatal("Error unmarshalling body params from ip-api: ", err.Error())
-		}
-
-		city := getOrEmptyString(bodyParams, "city")
-		state := getOrEmptyString(bodyParams, "regionName")
-		country := getOrEmptyString(bodyParams, "country")
-
-		ipLocationData.Location = createLocationString(city, state, country)
-		ipLocationData.Lat = getOrEmptyFloat(bodyParams, "lat")
-		ipLocationData.Lon = getOrEmptyFloat(bodyParams, "lon")
+		return getIpLocationData(ipAddress)
 	}
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		log.Fatal("Error reading response body from ip-api: ", err.Error())
+	}
+	defer response.Body.Close()
+
+	bodyParams := make(map[string]interface{})
+	err = json.Unmarshal(body, &bodyParams)
+	if err != nil {
+		log.Fatal("Error unmarshalling body params from ip-api: ", err.Error())
+	}
+
+	city := getOrEmptyString(bodyParams, "city")
+	state := getOrEmptyString(bodyParams, "regionName")
+	country := getOrEmptyString(bodyParams, "country")
+
+	ipLocationData := IpLocationData{
+		Location: createLocationString(city, state, country),
+		Lat:      getOrEmptyFloat(bodyParams, "lat"),
+		Lon:      getOrEmptyFloat(bodyParams, "lon"),
+	}
+
+	// write to cache
+	ipApiCache[ipAddress] = ipLocationData
 
 	return ipLocationData
 }
