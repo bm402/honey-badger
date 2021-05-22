@@ -163,11 +163,12 @@ func writeUpdatedAggregatedLogEntry(aggregatedLogEntryKey string, aggregatesToUp
 		return err
 	}
 
-	var update expression.UpdateBuilder
+	// increments aggregate count
+	update := expression.Set(expression.Name("count"), expression.Plus(expression.Name("count"), expression.Value(1)))
 	for name, value := range aggregatesToUpdate {
+		// appends new raw values to aggregate arrays
 		update.Set(expression.Name(name), expression.ListAppend(expression.Name(name), expression.Value(value)))
 	}
-	update.Set(expression.Name("count"), expression.Plus(expression.Name("count"), expression.Value(1)))
 
 	expression, err := expression.NewBuilder().WithUpdate(update).Build()
 	if err != nil {
@@ -201,13 +202,13 @@ func findAggregatesToUpdate(aggregatedLogEntry AggregatedLogEntry, rawLogEntry R
 
 	aggregatesToUpdate := make(map[string][]string)
 	if !contains(aggregatedLogEntry.IpAddresses, rawLogEntry.IpAddress) {
-		aggregatesToUpdate["IpAddresses"] = []string{rawLogEntry.IpAddress}
+		aggregatesToUpdate["ip_addresses"] = []string{rawLogEntry.IpAddress}
 	}
 	if !contains(aggregatedLogEntry.IngressPorts, rawLogEntry.IngressPort) {
-		aggregatesToUpdate["IngressPorts"] = []string{rawLogEntry.IngressPort}
+		aggregatesToUpdate["ingress_ports"] = []string{rawLogEntry.IngressPort}
 	}
 	if !contains(aggregatedLogEntry.Inputs, rawLogEntry.Input) {
-		aggregatesToUpdate["Inputs"] = []string{rawLogEntry.Input}
+		aggregatesToUpdate["inputs"] = []string{rawLogEntry.Input}
 	}
 
 	return aggregatesToUpdate
