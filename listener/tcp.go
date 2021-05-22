@@ -25,8 +25,10 @@ func listen(port string) {
 
 // serves a false command prompt on the given tcp connection and reads input
 func handle(conn net.Conn, port string) {
+
+	// 16kb read buffer
+	buf := make([]byte, 16384)
 	defer conn.Close()
-	buf := make([]byte, 2048)
 
 	for {
 		_, err := conn.Write([]byte("$ "))

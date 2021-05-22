@@ -15,6 +15,7 @@ import (
 var (
 	dynamoClient     dynamodbiface.DynamoDBAPI
 	rawLogsTableName string
+	ipApiCache       map[string]IpLocationData
 )
 
 // gets parameters and sets up dynamodb session
@@ -38,6 +39,7 @@ func init() {
 
 	dynamoClient = dynamodb.New(session)
 	rawLogsTableName = aws.StringValue(getParameterOutput.Parameter.Value)
+	ipApiCache = make(map[string]IpLocationData)
 }
 
 func main() {
