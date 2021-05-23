@@ -3,7 +3,9 @@ import * as ec2 from '@aws-cdk/aws-ec2';
 import * as dynamodb from '@aws-cdk/aws-dynamodb';
 import * as iam from '@aws-cdk/aws-iam';
 import * as lambda from '@aws-cdk/aws-lambda';
+import * as lambdaEventSources from '@aws-cdk/aws-lambda-event-sources';
 import * as ssm from '@aws-cdk/aws-ssm';
+import * as sqs from '@aws-cdk/aws-sqs';
 import * as fs from 'fs';
 import * as path from 'path'
 
@@ -34,6 +36,7 @@ export class HoneyBadgerStack extends cdk.Stack {
             },
             readCapacity: 2,
             writeCapacity: 2,
+            stream: dynamodb.StreamViewType.NEW_IMAGE,
         });
         rawLogsTable.grantWriteData(listenerInstanceRole)
 
@@ -75,6 +78,18 @@ export class HoneyBadgerStack extends cdk.Stack {
                 'AGGREGATED_LOGS_TABLE_NAME': aggregatedLogsTable.tableName,
             },
         });
+
+        // dead letter queue for raw logs table stream
+        const rawLogsTableStreamDLQ = new sqs.Queue(this, 'deadLetterQueue');
+
+        // triggers the aggregator lambda when new data is written to the raw logs table
+        aggregatorLambda.addEventSource(new lambdaEventSources.DynamoEventSource(rawLogsTable, {
+            startingPosition: lambda.StartingPosition.TRIM_HORIZON,
+            batchSize: 5,
+            bisectBatchOnError: true,
+            onFailure: new lambdaEventSources.SqsDlq(rawLogsTableStreamDLQ),
+            retryAttempts: 10
+        }));
 
         // set up listener on ec2
         const defaultVpc = ec2.Vpc.fromLookup(this, 'VPC', { 
