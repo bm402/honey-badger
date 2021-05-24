@@ -103,6 +103,7 @@ export class HoneyBadgerStack extends cdk.Stack {
         const api = new apigw.RestApi(this, "DataApi", {
             restApiName: "HoneyBadgerDataApi",
         });
+        const apiRoot = api.root.addResource('v1')
 
         // lambda function for retrieving heatmap data from aggregated logs table
         const heatmapDataLambda = new lambda.Function(this, 'HeatmapDataLambda', {
@@ -125,7 +126,32 @@ export class HoneyBadgerStack extends cdk.Stack {
             },
         });
         const heatmapDataIntegration = new apigw.LambdaIntegration(heatmapDataLambda);
-        api.root.addResource('heatmap-data').addMethod('GET', heatmapDataIntegration);
+        const apiHeatmapDataMethod = apiRoot.addResource('heatmap-data').addMethod('GET', heatmapDataIntegration);
+
+        // api gateway usage plan
+        const plan = api.addUsagePlan('DataApiUsagePlan', {
+            name: 'HoneyBadgerGlobalUsagePlan',
+            throttle: {
+                rateLimit: 10,
+                burstLimit: 25,
+            },
+            quota: {
+                limit: 1000,
+                period: apigw.Period.MONTH,
+            },
+        });
+        plan.addApiStage({
+            stage: api.deploymentStage,
+            throttle: [
+                {
+                    method: apiHeatmapDataMethod,
+                    throttle: {
+                        rateLimit: 5,
+                        burstLimit: 10,
+                    },
+                }
+            ],
+        });
 
         // set up listener on ec2
         const defaultVpc = ec2.Vpc.fromLookup(this, 'VPC', { 
