@@ -1,4 +1,5 @@
 import * as cdk from '@aws-cdk/core';
+import * as apigw from "@aws-cdk/aws-apigateway";
 import * as ec2 from '@aws-cdk/aws-ec2';
 import * as dynamodb from '@aws-cdk/aws-dynamodb';
 import * as iam from '@aws-cdk/aws-iam';
@@ -23,6 +24,12 @@ export class HoneyBadgerStack extends cdk.Stack {
                 iam.ManagedPolicy.fromAwsManagedPolicyName("service-role/AWSLambdaBasicExecutionRole"),
             ],
         });
+        const heatmapDataLambdaExecutionRole = new iam.Role(this, 'LambdaExecutionRole', {
+            assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
+            managedPolicies: [
+                iam.ManagedPolicy.fromAwsManagedPolicyName("service-role/AWSLambdaBasicExecutionRole"),
+            ],
+        });
 
         // dynamodb table for raw logs
         const rawLogsTable = new dynamodb.Table(this, 'RawLogsTable', {
@@ -38,7 +45,7 @@ export class HoneyBadgerStack extends cdk.Stack {
             writeCapacity: 2,
             stream: dynamodb.StreamViewType.NEW_IMAGE,
         });
-        rawLogsTable.grantWriteData(listenerInstanceRole)
+        rawLogsTable.grantWriteData(listenerInstanceRole);
 
         // put dynamodb table name in parameter store
         const rawLogsTableNameParam = new ssm.StringParameter(this, 'StringParameterRawLogsTableName', {
@@ -56,7 +63,8 @@ export class HoneyBadgerStack extends cdk.Stack {
             readCapacity: 2,
             writeCapacity: 2,
         });
-        aggregatedLogsTable.grantReadWriteData(aggregatorLambdaExecutionRole)
+        aggregatedLogsTable.grantReadWriteData(aggregatorLambdaExecutionRole);
+        aggregatedLogsTable.grantReadData(heatmapDataLambdaExecutionRole);
 
         // lambda function for aggregating log data
         const aggregatorLambda = new lambda.Function(this, 'AggregatorLambda', {
@@ -80,7 +88,7 @@ export class HoneyBadgerStack extends cdk.Stack {
         });
 
         // dead letter queue for raw logs table stream
-        const rawLogsTableStreamDLQ = new sqs.Queue(this, 'deadLetterQueue');
+        const rawLogsTableStreamDLQ = new sqs.Queue(this, 'DeadLetterQueue');
 
         // triggers the aggregator lambda when new data is written to the raw logs table
         aggregatorLambda.addEventSource(new lambdaEventSources.DynamoEventSource(rawLogsTable, {
@@ -90,6 +98,34 @@ export class HoneyBadgerStack extends cdk.Stack {
             onFailure: new lambdaEventSources.SqsDlq(rawLogsTableStreamDLQ),
             retryAttempts: 10
         }));
+
+        // api gateway for http data retrieval
+        const api = new apigw.RestApi(this, "DataApi", {
+            restApiName: "HoneyBadgerDataApi",
+        });
+
+        // lambda function for retrieving heatmap data from aggregated logs table
+        const heatmapDataLambda = new lambda.Function(this, 'HeatmapDataLambda', {
+            code: lambda.Code.fromAsset(path.join(__dirname, '../api/heatmap-data'), {
+                bundling: {
+                    image: lambda.Runtime.GO_1_X.bundlingImage,
+                    user: "root",
+                    command: [
+                        'bash', '-c', [
+                            'GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o /asset-output/main *.go',
+                        ].join(' && ')
+                    ]
+                },
+            }),
+            handler: 'main',
+            runtime: lambda.Runtime.GO_1_X,
+            role: heatmapDataLambdaExecutionRole,
+            environment: {
+                'AGGREGATED_LOGS_TABLE_NAME': aggregatedLogsTable.tableName,
+            },
+        });
+        const heatmapDataIntegration = new apigw.LambdaIntegration(heatmapDataLambda);
+        api.root.addMethod('GET', heatmapDataIntegration)
 
         // set up listener on ec2
         const defaultVpc = ec2.Vpc.fromLookup(this, 'VPC', { 
