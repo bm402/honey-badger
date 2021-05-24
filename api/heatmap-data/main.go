@@ -32,7 +32,7 @@ func init() {
 
 // lambda function handler
 func handler() (HeatmapDataResponse, error) {
-	return getHeatmapData()
+	return getHeatmapDataResponse()
 }
 
 // entry point

@@ -18,13 +18,13 @@ export class HoneyBadgerStack extends cdk.Stack {
         const listenerInstanceRole = new iam.Role(this, 'InstanceRole', {
             assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
         });
-        const aggregatorLambdaExecutionRole = new iam.Role(this, 'LambdaExecutionRole', {
+        const aggregatorLambdaExecutionRole = new iam.Role(this, 'AggregatorLambdaExecutionRole', {
             assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
             managedPolicies: [
                 iam.ManagedPolicy.fromAwsManagedPolicyName("service-role/AWSLambdaBasicExecutionRole"),
             ],
         });
-        const heatmapDataLambdaExecutionRole = new iam.Role(this, 'LambdaExecutionRole', {
+        const heatmapDataLambdaExecutionRole = new iam.Role(this, 'HeatmapDataLambdaExecutionRole', {
             assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
             managedPolicies: [
                 iam.ManagedPolicy.fromAwsManagedPolicyName("service-role/AWSLambdaBasicExecutionRole"),
@@ -125,7 +125,7 @@ export class HoneyBadgerStack extends cdk.Stack {
             },
         });
         const heatmapDataIntegration = new apigw.LambdaIntegration(heatmapDataLambda);
-        api.root.addMethod('GET', heatmapDataIntegration)
+        api.root.addResource('heatmap-data').addMethod('GET', heatmapDataIntegration);
 
         // set up listener on ec2
         const defaultVpc = ec2.Vpc.fromLookup(this, 'VPC', { 
