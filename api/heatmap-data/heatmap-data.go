@@ -32,11 +32,19 @@ type HeatmapDataPoint struct {
 // packages heatmap data points into a http response format for the api gateway
 func getHeatmapDataResponse() (HeatmapDataResponse, error) {
 
+	// http headers including cors
+	headers := map[string]string{
+		"Access-Control-Allow-Headers": "Content-Type",
+		"Access-Control-Allow-Origin":  "*",
+		"Access-Control-Allow-Methods": "OPTIONS,GET",
+		"Content-Type":                 "application/json",
+	}
+
 	// function for creating an error response
 	createErrorResponse := func(err error) HeatmapDataResponse {
 		return HeatmapDataResponse{
 			StatusCode:      400,
-			Headers:         map[string]string{"Content-Type": "application/json"},
+			Headers:         headers,
 			Body:            "{\"error\":\"" + err.Error() + "\"}",
 			IsBase64Encoded: false,
 		}
@@ -54,7 +62,7 @@ func getHeatmapDataResponse() (HeatmapDataResponse, error) {
 
 	return HeatmapDataResponse{
 		StatusCode:      200,
-		Headers:         map[string]string{"Content-Type": "application/json"},
+		Headers:         headers,
 		Body:            string(body),
 		IsBase64Encoded: false,
 	}, nil

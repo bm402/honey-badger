@@ -102,6 +102,10 @@ export class HoneyBadgerStack extends cdk.Stack {
         // api gateway for http data retrieval
         const api = new apigw.RestApi(this, "DataApi", {
             restApiName: "HoneyBadgerDataApi",
+            defaultCorsPreflightOptions: {
+                allowOrigins: apigw.Cors.ALL_ORIGINS,
+                allowMethods: apigw.Cors.ALL_METHODS
+            },
         });
         const apiRoot = api.root.addResource('v1')
 
