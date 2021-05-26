@@ -197,3 +197,77 @@ func TestCreateMostActiveCitiesData(t *testing.T) {
 		t.Error("Most active cities data was incorrect, got: ", got, ", want: ", want)
 	}
 }
+
+func TestCreateMostActiveCountriesData(t *testing.T) {
+	aggregatedLogs := AggregatedLogs{
+		AggregatedLogEntry{Lat: 0, Lon: 0, Count: 1, Country: "Belgium"},
+		AggregatedLogEntry{Lat: 1, Lon: 1, Count: 8, Country: "Mexico"},
+		AggregatedLogEntry{Lat: 2, Lon: 2, Count: 4, Country: "United Kingdom"},
+		AggregatedLogEntry{Lat: 3, Lon: 3, Count: 6, Country: "Italy"},
+		AggregatedLogEntry{Lat: 4, Lon: 4, Count: 5, Country: "United Kingdom"},
+	}
+
+	want := []StatsDataPoint{
+		{
+			Value: "United Kingdom",
+			MapData: []MapDataPoint{
+				{
+					Lat: 2,
+					Lon: 2,
+					Metadata: map[string]interface{}{
+						"connections": 4,
+					},
+				},
+				{
+					Lat: 4,
+					Lon: 4,
+					Metadata: map[string]interface{}{
+						"connections": 5,
+					},
+				},
+			},
+			Metadata: map[string]interface{}{
+				"connections": 9,
+			},
+		},
+		{
+			Value: "Mexico",
+			MapData: []MapDataPoint{
+				{
+					Lat: 1,
+					Lon: 1,
+					Metadata: map[string]interface{}{
+						"connections": 8,
+					},
+				},
+			},
+			Metadata: map[string]interface{}{
+				"connections": 8,
+			},
+		},
+		{
+			Value: "Italy",
+			MapData: []MapDataPoint{
+				{
+					Lat: 3,
+					Lon: 3,
+					Metadata: map[string]interface{}{
+						"connections": 6,
+					},
+				},
+			},
+			Metadata: map[string]interface{}{
+				"connections": 6,
+			},
+		},
+	}
+
+	got := createMostActiveCountriesData(aggregatedLogs)
+
+	if got[0].Value.(string) != want[0].Value.(string) ||
+		got[1].Value.(string) != want[1].Value.(string) ||
+		got[2].Value.(string) != want[2].Value.(string) {
+
+		t.Error("Most active countries data was incorrect, got: ", got, ", want: ", want)
+	}
+}

@@ -108,8 +108,9 @@ func createStatsData() (StatsData, error) {
 	}
 
 	statsData := StatsData{
-		MostConnections:  createMostConnectionsData(aggregatedLogs),
-		MostActiveCities: createMostActiveCitiesData(aggregatedLogs),
+		MostConnections:     createMostConnectionsData(aggregatedLogs),
+		MostActiveCities:    createMostActiveCitiesData(aggregatedLogs),
+		MostActiveCountries: createMostActiveCountriesData(aggregatedLogs),
 	}
 
 	return statsData, nil
@@ -205,6 +206,62 @@ func createMostActiveCitiesData(aggregatedLogs AggregatedLogs) []StatsDataPoint 
 			// create new combined log entry
 			combinedLogs[aggregatedLogEntry.City] = StatsDataPoint{
 				Value: aggregatedLogEntry.City,
+				MapData: []MapDataPoint{
+					{
+						Lat: aggregatedLogEntry.Lat,
+						Lon: aggregatedLogEntry.Lon,
+						Metadata: map[string]interface{}{
+							"connections": aggregatedLogEntry.Count,
+						},
+					},
+				},
+				Metadata: map[string]interface{}{
+					"connections": aggregatedLogEntry.Count,
+				},
+			}
+		}
+	}
+
+	// create podium of most connections
+	var podium StatsDataPointPodium
+	for _, combinedLogEntry := range combinedLogs {
+		podium.insertByMetadataConnections(combinedLogEntry)
+	}
+
+	// create stats data
+	data := make([]StatsDataPoint, 3)
+	for i, podiumEntry := range podium {
+		data[i] = podiumEntry
+	}
+
+	return data
+}
+
+// generates most active countries stats
+func createMostActiveCountriesData(aggregatedLogs AggregatedLogs) []StatsDataPoint {
+
+	// combine log entries by country
+	combinedLogs := make(map[string]StatsDataPoint)
+	for _, aggregatedLogEntry := range aggregatedLogs {
+
+		if combinedLogEntry, ok := combinedLogs[aggregatedLogEntry.Country]; ok {
+			// update combined log entry
+			combinedLogEntry.MapData = append(combinedLogEntry.MapData, MapDataPoint{
+				Lat: aggregatedLogEntry.Lat,
+				Lon: aggregatedLogEntry.Lon,
+				Metadata: map[string]interface{}{
+					"connections": aggregatedLogEntry.Count,
+				},
+			})
+			combinedLogEntry.Metadata["connections"] =
+				combinedLogEntry.Metadata["connections"].(int) + aggregatedLogEntry.Count
+
+			combinedLogs[aggregatedLogEntry.Country] = combinedLogEntry
+
+		} else {
+			// create new combined log entry
+			combinedLogs[aggregatedLogEntry.Country] = StatsDataPoint{
+				Value: aggregatedLogEntry.Country,
 				MapData: []MapDataPoint{
 					{
 						Lat: aggregatedLogEntry.Lat,
