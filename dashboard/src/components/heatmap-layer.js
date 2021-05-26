@@ -4,21 +4,7 @@ import L from 'leaflet'
 import 'leaflet.heat'
 
 const HeatmapLayer = () => {
-    
     const map = useMap();
-    const heatmapConfig = {
-        minOpacity: 0,
-        maxZoom: 3,
-        radius: 20,
-        blur: 15,
-        gradient: {
-            0.4: 'blue',
-            0.6: 'lime',
-            0.8: 'yellow',
-            0.9: 'orange',
-            1.0: 'red',
-        },
-    };
 
     React.useEffect(() => {
         fetch('https://ba2gcmccu2.execute-api.eu-west-2.amazonaws.com/prod/v1/heatmap-data')
@@ -43,11 +29,25 @@ const HeatmapLayer = () => {
                 const maxCount = sortedDataPoints[sortedDataPoints.length-1][2]
                 const normalisedDataPoints = sortedDataPoints
                     .map(point => [point[0], point[1], point[2]/maxCount]);
+
+                const heatmapConfig = {
+                    minOpacity: 0.4,
+                    maxZoom: 3,
+                    radius: 20,
+                    blur: 15,
+                    gradient: {
+                        0.4: 'blue',
+                        0.6: 'lime',
+                        0.8: 'yellow',
+                        0.9: 'orange',
+                        1.0: 'red',
+                    },
+                };
                 
                 L.heatLayer(normalisedDataPoints, heatmapConfig).addTo(map);
             })
             .catch(console.log);
-    }, []);
+    }, [map]);
 
     return null
 }

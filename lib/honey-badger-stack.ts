@@ -132,6 +132,29 @@ export class HoneyBadgerStack extends cdk.Stack {
         const heatmapDataIntegration = new apigw.LambdaIntegration(heatmapDataLambda);
         const apiHeatmapDataMethod = apiRoot.addResource('heatmap-data').addMethod('GET', heatmapDataIntegration);
 
+        // lambda function for retrieving stats data from aggregated logs table
+        const statsDataLambda = new lambda.Function(this, 'StatsDataLambda', {
+            code: lambda.Code.fromAsset(path.join(__dirname, '../api/stats-data'), {
+                bundling: {
+                    image: lambda.Runtime.GO_1_X.bundlingImage,
+                    user: "root",
+                    command: [
+                        'bash', '-c', [
+                            'GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o /asset-output/main *.go',
+                        ].join(' && ')
+                    ]
+                },
+            }),
+            handler: 'main',
+            runtime: lambda.Runtime.GO_1_X,
+            role: heatmapDataLambdaExecutionRole,
+            environment: {
+                'AGGREGATED_LOGS_TABLE_NAME': aggregatedLogsTable.tableName,
+            },
+        });
+        const statsDataIntegration = new apigw.LambdaIntegration(statsDataLambda);
+        const apiStatsDataMethod = apiRoot.addResource('stats-data').addMethod('GET', statsDataIntegration);
+
         // api gateway usage plan
         const plan = api.addUsagePlan('DataApiUsagePlan', {
             name: 'HoneyBadgerGlobalUsagePlan',
@@ -153,7 +176,14 @@ export class HoneyBadgerStack extends cdk.Stack {
                         rateLimit: 5,
                         burstLimit: 10,
                     },
-                }
+                },
+                {
+                    method: apiStatsDataMethod,
+                    throttle: {
+                        rateLimit: 5,
+                        burstLimit: 10,
+                    },
+                },
             ],
         });
 
