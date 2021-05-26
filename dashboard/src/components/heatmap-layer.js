@@ -7,7 +7,7 @@ const HeatmapLayer = () => {
     const map = useMap();
 
     React.useEffect(() => {
-        fetch('https://ba2gcmccu2.execute-api.eu-west-2.amazonaws.com/prod/v1/heatmap-data')
+        fetch('https://omf1aavgfc.execute-api.eu-west-2.amazonaws.com/prod/v1/heatmap-data')
             .then(res => res.json())
             .then(rawData => rawData.heatmap_data_points)
             .then(rawDataPoints => {
