@@ -19,11 +19,25 @@ type StatsDataResponse struct {
 
 // struct for stats data
 type StatsData struct {
-	MostConnections     []map[string]interface{} `json:"most_connections"`
-	MostActiveCities    []map[string]interface{} `json:"most_active_cities"`
-	MostActiveCountries []map[string]interface{} `json:"most_active_countries"`
-	MostIpAddresses     []map[string]interface{} `json:"most_ip_addresses"`
-	MostIngressPorts    []map[string]interface{} `json:"most_ingress_ports"`
+	MostConnections     []StatsDataPoint `json:"most_connections"`
+	MostActiveCities    []StatsDataPoint `json:"most_active_cities"`
+	MostActiveCountries []StatsDataPoint `json:"most_active_countries"`
+	MostIpAddresses     []StatsDataPoint `json:"most_ip_addresses"`
+	MostIngressPorts    []StatsDataPoint `json:"most_ingress_ports"`
+}
+
+// struct for stats data point
+type StatsDataPoint struct {
+	Value    interface{}            `json:"value"`
+	MapData  []MapDataPoint         `json:"map_data"`
+	Metadata map[string]interface{} `json:"metadata"`
+}
+
+// struct for map data point
+type MapDataPoint struct {
+	Lat      float64                `json:"lat"`
+	Lon      float64                `json:"lon"`
+	Metadata map[string]interface{} `json:"metadata"`
 }
 
 // type for unmarshalling aggregated logs from dynamodb
@@ -40,8 +54,11 @@ type AggregatedLogEntry struct {
 	Country      string   `json:"country"`
 }
 
-// type for storing three log entries which are the most of something
+// type for storing three log entries which have the most connections
 type AggregatedLogEntryPodium [3]AggregatedLogEntry
+
+// type for storing three stats data points which have the most connections
+type StatsDataPointPodium [3]StatsDataPoint
 
 // packages stats data into a http response format for the api gateway
 func getStatsDataResponse() (StatsDataResponse, error) {
@@ -91,7 +108,8 @@ func createStatsData() (StatsData, error) {
 	}
 
 	statsData := StatsData{
-		MostConnections: createMostConnectionsData(aggregatedLogs),
+		MostConnections:  createMostConnectionsData(aggregatedLogs),
+		MostActiveCities: createMostActiveCitiesData(aggregatedLogs),
 	}
 
 	return statsData, nil
@@ -131,7 +149,7 @@ func getAggregatedLogs() (AggregatedLogs, error) {
 }
 
 // generates most connections stats
-func createMostConnectionsData(aggregatedLogs AggregatedLogs) []map[string]interface{} {
+func createMostConnectionsData(aggregatedLogs AggregatedLogs) []StatsDataPoint {
 	var podium AggregatedLogEntryPodium
 
 	// create podium of most connections
@@ -142,19 +160,77 @@ func createMostConnectionsData(aggregatedLogs AggregatedLogs) []map[string]inter
 	}
 
 	// create stats data
-	data := make([]map[string]interface{}, 3)
+	data := make([]StatsDataPoint, 3)
 	for i, podiumEntry := range podium {
-		data[i] = map[string]interface{}{
-			"location": map[string]interface{}{
-				"lat": podiumEntry.Lat,
-				"lon": podiumEntry.Lon,
+		data[i] = StatsDataPoint{
+			Value: podiumEntry.Count,
+			MapData: []MapDataPoint{
+				{
+					Lat: podiumEntry.Lat,
+					Lon: podiumEntry.Lon,
+				},
 			},
-			"data": map[string]interface{}{
-				"connections":   podiumEntry.Count,
+			Metadata: map[string]interface{}{
 				"ingress_ports": podiumEntry.IngressPorts,
 				"ip_addresses":  podiumEntry.IpAddresses,
 			},
 		}
+	}
+
+	return data
+}
+
+// generates most active cities stats
+func createMostActiveCitiesData(aggregatedLogs AggregatedLogs) []StatsDataPoint {
+
+	// combine log entries by city
+	combinedLogs := make(map[string]StatsDataPoint)
+	for _, aggregatedLogEntry := range aggregatedLogs {
+
+		if combinedLogEntry, ok := combinedLogs[aggregatedLogEntry.City]; ok {
+			// update combined log entry
+			combinedLogEntry.MapData = append(combinedLogEntry.MapData, MapDataPoint{
+				Lat: aggregatedLogEntry.Lat,
+				Lon: aggregatedLogEntry.Lon,
+				Metadata: map[string]interface{}{
+					"connections": aggregatedLogEntry.Count,
+				},
+			})
+			combinedLogEntry.Metadata["connections"] =
+				combinedLogEntry.Metadata["connections"].(int) + aggregatedLogEntry.Count
+
+			combinedLogs[aggregatedLogEntry.City] = combinedLogEntry
+
+		} else {
+			// create new combined log entry
+			combinedLogs[aggregatedLogEntry.City] = StatsDataPoint{
+				Value: aggregatedLogEntry.City,
+				MapData: []MapDataPoint{
+					{
+						Lat: aggregatedLogEntry.Lat,
+						Lon: aggregatedLogEntry.Lon,
+						Metadata: map[string]interface{}{
+							"connections": aggregatedLogEntry.Count,
+						},
+					},
+				},
+				Metadata: map[string]interface{}{
+					"connections": aggregatedLogEntry.Count,
+				},
+			}
+		}
+	}
+
+	// create podium of most connections
+	var podium StatsDataPointPodium
+	for _, combinedLogEntry := range combinedLogs {
+		podium.insertByMetadataConnections(combinedLogEntry)
+	}
+
+	// create stats data
+	data := make([]StatsDataPoint, 3)
+	for i, podiumEntry := range podium {
+		data[i] = podiumEntry
 	}
 
 	return data
@@ -167,6 +243,20 @@ func (podium *AggregatedLogEntryPodium) insert(entry AggregatedLogEntry) {
 	} else if entry.Count > podium[1].Count {
 		podium[1], podium[2] = entry, podium[1]
 	} else if entry.Count > podium[2].Count {
+		podium[2] = entry
+	}
+}
+
+// inserts combined log entry into the top 3 based on connections
+func (podium *StatsDataPointPodium) insertByMetadataConnections(entry StatsDataPoint) {
+	if podium[0].Metadata["connections"] == nil ||
+		entry.Metadata["connections"].(int) > podium[0].Metadata["connections"].(int) {
+		podium[0], podium[1], podium[2] = entry, podium[0], podium[1]
+	} else if podium[1].Metadata["connections"] == nil ||
+		entry.Metadata["connections"].(int) > podium[1].Metadata["connections"].(int) {
+		podium[1], podium[2] = entry, podium[1]
+	} else if podium[2].Metadata["connections"] == nil ||
+		entry.Metadata["connections"].(int) > podium[2].Metadata["connections"].(int) {
 		podium[2] = entry
 	}
 }

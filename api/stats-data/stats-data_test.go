@@ -72,36 +72,42 @@ func TestCreateMostConnectionsData(t *testing.T) {
 		AggregatedLogEntry{Lat: 3, Lon: 3, Count: 2, IngressPorts: []string{"3"}, IpAddresses: []string{"3.3.3.3"}},
 	}
 
-	want := []map[string]interface{}{
+	want := []StatsDataPoint{
 		{
-			"location": map[string]interface{}{
-				"lat": 1,
-				"lon": 1,
+			Value: 4,
+			MapData: []MapDataPoint{
+				{
+					Lat: 1,
+					Lon: 1,
+				},
 			},
-			"data": map[string]interface{}{
-				"connections":   4,
+			Metadata: map[string]interface{}{
 				"ingress_ports": []string{"1"},
 				"ip_addresses":  []string{"1.1.1.1"},
 			},
 		},
 		{
-			"location": map[string]interface{}{
-				"lat": 0,
-				"lon": 0,
+			Value: 3,
+			MapData: []MapDataPoint{
+				{
+					Lat: 0,
+					Lon: 0,
+				},
 			},
-			"data": map[string]interface{}{
-				"connections":   3,
+			Metadata: map[string]interface{}{
 				"ingress_ports": []string{"0"},
 				"ip_addresses":  []string{"0.0.0.0"},
 			},
 		},
 		{
-			"location": map[string]interface{}{
-				"lat": 3,
-				"lon": 3,
+			Value: 2,
+			MapData: []MapDataPoint{
+				{
+					Lat: 3,
+					Lon: 3,
+				},
 			},
-			"data": map[string]interface{}{
-				"connections":   2,
+			Metadata: map[string]interface{}{
 				"ingress_ports": []string{"3"},
 				"ip_addresses":  []string{"3.3.3.3"},
 			},
@@ -110,10 +116,84 @@ func TestCreateMostConnectionsData(t *testing.T) {
 
 	got := createMostConnectionsData(aggregatedLogs)
 
-	if got[0]["data"].(map[string]interface{})["connections"].(int) != 4 ||
-		got[1]["data"].(map[string]interface{})["connections"].(int) != 3 ||
-		got[2]["data"].(map[string]interface{})["connections"].(int) != 2 {
+	if got[0].Value.(int) != want[0].Value.(int) ||
+		got[1].Value.(int) != want[1].Value.(int) ||
+		got[2].Value.(int) != want[2].Value.(int) {
 
 		t.Error("Most connections data was incorrect, got: ", got, ", want: ", want)
+	}
+}
+
+func TestCreateMostActiveCitiesData(t *testing.T) {
+	aggregatedLogs := AggregatedLogs{
+		AggregatedLogEntry{Lat: 0, Lon: 0, Count: 1, City: "Birmingham"},
+		AggregatedLogEntry{Lat: 1, Lon: 1, Count: 8, City: "Leeds"},
+		AggregatedLogEntry{Lat: 2, Lon: 2, Count: 4, City: "London"},
+		AggregatedLogEntry{Lat: 3, Lon: 3, Count: 6, City: "Bristol"},
+		AggregatedLogEntry{Lat: 4, Lon: 4, Count: 5, City: "London"},
+	}
+
+	want := []StatsDataPoint{
+		{
+			Value: "London",
+			MapData: []MapDataPoint{
+				{
+					Lat: 2,
+					Lon: 2,
+					Metadata: map[string]interface{}{
+						"connections": 4,
+					},
+				},
+				{
+					Lat: 4,
+					Lon: 4,
+					Metadata: map[string]interface{}{
+						"connections": 5,
+					},
+				},
+			},
+			Metadata: map[string]interface{}{
+				"connections": 9,
+			},
+		},
+		{
+			Value: "Leeds",
+			MapData: []MapDataPoint{
+				{
+					Lat: 1,
+					Lon: 1,
+					Metadata: map[string]interface{}{
+						"connections": 8,
+					},
+				},
+			},
+			Metadata: map[string]interface{}{
+				"connections": 8,
+			},
+		},
+		{
+			Value: "Bristol",
+			MapData: []MapDataPoint{
+				{
+					Lat: 3,
+					Lon: 3,
+					Metadata: map[string]interface{}{
+						"connections": 6,
+					},
+				},
+			},
+			Metadata: map[string]interface{}{
+				"connections": 6,
+			},
+		},
+	}
+
+	got := createMostActiveCitiesData(aggregatedLogs)
+
+	if got[0].Value.(string) != want[0].Value.(string) ||
+		got[1].Value.(string) != want[1].Value.(string) ||
+		got[2].Value.(string) != want[2].Value.(string) {
+
+		t.Error("Most active cities data was incorrect, got: ", got, ", want: ", want)
 	}
 }
