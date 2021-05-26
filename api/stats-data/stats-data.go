@@ -160,7 +160,8 @@ func createMostConnectionsData(aggregatedLogs AggregatedLogs) []map[string]inter
 	return data
 }
 
-func (podium AggregatedLogEntryPodium) insert(entry AggregatedLogEntry) {
+// inserts aggregated log entry into the top 3 based on count
+func (podium *AggregatedLogEntryPodium) insert(entry AggregatedLogEntry) {
 	if entry.Count > podium[0].Count {
 		podium[0], podium[1], podium[2] = entry, podium[0], podium[1]
 	} else if entry.Count > podium[1].Count {
