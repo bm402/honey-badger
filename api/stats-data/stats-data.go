@@ -111,6 +111,8 @@ func createStatsData() (StatsData, error) {
 		MostConnections:     createMostConnectionsData(aggregatedLogs),
 		MostActiveCities:    createMostActiveCitiesData(aggregatedLogs),
 		MostActiveCountries: createMostActiveCountriesData(aggregatedLogs),
+		MostIpAddresses:     createMostIpAddressesData(aggregatedLogs),
+		MostIngressPorts:    createMostIngressPortsData(aggregatedLogs),
 	}
 
 	return statsData, nil
@@ -156,7 +158,7 @@ func createMostConnectionsData(aggregatedLogs AggregatedLogs) []StatsDataPoint {
 	// create podium of most connections
 	for _, aggregatedLogEntry := range aggregatedLogs {
 		if aggregatedLogEntry.Count > podium[2].Count {
-			podium.insert(aggregatedLogEntry)
+			podium.insertByCount(aggregatedLogEntry)
 		}
 	}
 
@@ -293,13 +295,97 @@ func createMostActiveCountriesData(aggregatedLogs AggregatedLogs) []StatsDataPoi
 	return data
 }
 
+// generates most ip addresses stats
+func createMostIpAddressesData(aggregatedLogs AggregatedLogs) []StatsDataPoint {
+	var podium AggregatedLogEntryPodium
+
+	// create podium of most ip addresses
+	for _, aggregatedLogEntry := range aggregatedLogs {
+		if len(aggregatedLogEntry.IpAddresses) > len(podium[2].IpAddresses) {
+			podium.insertByIpAddresses(aggregatedLogEntry)
+		}
+	}
+
+	// create stats data
+	data := make([]StatsDataPoint, 3)
+	for i, podiumEntry := range podium {
+		data[i] = StatsDataPoint{
+			Value: len(podiumEntry.IpAddresses),
+			MapData: []MapDataPoint{
+				{
+					Lat: podiumEntry.Lat,
+					Lon: podiumEntry.Lon,
+				},
+			},
+			Metadata: map[string]interface{}{
+				"ip_addresses": podiumEntry.IpAddresses,
+			},
+		}
+	}
+
+	return data
+}
+
+// generates most ip addresses stats
+func createMostIngressPortsData(aggregatedLogs AggregatedLogs) []StatsDataPoint {
+	var podium AggregatedLogEntryPodium
+
+	// create podium of most ip addresses
+	for _, aggregatedLogEntry := range aggregatedLogs {
+		if len(aggregatedLogEntry.IngressPorts) > len(podium[2].IngressPorts) {
+			podium.insertByIngressPorts(aggregatedLogEntry)
+		}
+	}
+
+	// create stats data
+	data := make([]StatsDataPoint, 3)
+	for i, podiumEntry := range podium {
+		data[i] = StatsDataPoint{
+			Value: len(podiumEntry.IngressPorts),
+			MapData: []MapDataPoint{
+				{
+					Lat: podiumEntry.Lat,
+					Lon: podiumEntry.Lon,
+				},
+			},
+			Metadata: map[string]interface{}{
+				"ingress_ports": podiumEntry.IngressPorts,
+			},
+		}
+	}
+
+	return data
+}
+
 // inserts aggregated log entry into the top 3 based on count
-func (podium *AggregatedLogEntryPodium) insert(entry AggregatedLogEntry) {
+func (podium *AggregatedLogEntryPodium) insertByCount(entry AggregatedLogEntry) {
 	if entry.Count > podium[0].Count {
 		podium[0], podium[1], podium[2] = entry, podium[0], podium[1]
 	} else if entry.Count > podium[1].Count {
 		podium[1], podium[2] = entry, podium[1]
 	} else if entry.Count > podium[2].Count {
+		podium[2] = entry
+	}
+}
+
+// inserts aggregated log entry into the top 3 based on number of ip addresses
+func (podium *AggregatedLogEntryPodium) insertByIpAddresses(entry AggregatedLogEntry) {
+	if len(entry.IpAddresses) > len(podium[0].IpAddresses) {
+		podium[0], podium[1], podium[2] = entry, podium[0], podium[1]
+	} else if len(entry.IpAddresses) > len(podium[1].IpAddresses) {
+		podium[1], podium[2] = entry, podium[1]
+	} else if len(entry.IpAddresses) > len(podium[2].IpAddresses) {
+		podium[2] = entry
+	}
+}
+
+// inserts aggregated log entry into the top 3 based on number of ingress ports
+func (podium *AggregatedLogEntryPodium) insertByIngressPorts(entry AggregatedLogEntry) {
+	if len(entry.IngressPorts) > len(podium[0].IngressPorts) {
+		podium[0], podium[1], podium[2] = entry, podium[0], podium[1]
+	} else if len(entry.IngressPorts) > len(podium[1].IngressPorts) {
+		podium[1], podium[2] = entry, podium[1]
+	} else if len(entry.IngressPorts) > len(podium[2].IngressPorts) {
 		podium[2] = entry
 	}
 }

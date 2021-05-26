@@ -17,7 +17,7 @@ func TestAggregatedLogEntryPodiumInsertFirst(t *testing.T) {
 		AggregatedLogEntry{Count: 2},
 	}
 
-	podium.insert(AggregatedLogEntry{Count: 4})
+	podium.insertByCount(AggregatedLogEntry{Count: 4})
 
 	if podium[0].Count != 4 || podium[1].Count != 3 || podium[2].Count != 2 {
 		t.Error("Aggregated log entry podium insert was incorrect, got: ", podium, ", want: ", want)
@@ -37,7 +37,7 @@ func TestAggregatedLogEntryPodiumInsertSecond(t *testing.T) {
 		AggregatedLogEntry{Count: 2},
 	}
 
-	podium.insert(AggregatedLogEntry{Count: 3})
+	podium.insertByCount(AggregatedLogEntry{Count: 3})
 
 	if podium[0].Count != 4 || podium[1].Count != 3 || podium[2].Count != 2 {
 		t.Error("Aggregated log entry podium insert was incorrect, got: ", podium, ", want: ", want)
@@ -57,7 +57,7 @@ func TestAggregatedLogEntryPodiumInsertThird(t *testing.T) {
 		AggregatedLogEntry{Count: 2},
 	}
 
-	podium.insert(AggregatedLogEntry{Count: 2})
+	podium.insertByCount(AggregatedLogEntry{Count: 2})
 
 	if podium[0].Count != 4 || podium[1].Count != 3 || podium[2].Count != 2 {
 		t.Error("Aggregated log entry podium insert was incorrect, got: ", podium, ", want: ", want)
@@ -269,5 +269,117 @@ func TestCreateMostActiveCountriesData(t *testing.T) {
 		got[2].Value.(string) != want[2].Value.(string) {
 
 		t.Error("Most active countries data was incorrect, got: ", got, ", want: ", want)
+	}
+}
+
+func TestCreateMostIpAddressesData(t *testing.T) {
+	aggregatedLogs := AggregatedLogs{
+		AggregatedLogEntry{Lat: 0, Lon: 0, IpAddresses: []string{"0.0.0.0", "1.1.1.1"}},
+		AggregatedLogEntry{Lat: 1, Lon: 1, IpAddresses: []string{"2.2.2.2"}},
+		AggregatedLogEntry{Lat: 2, Lon: 2, IpAddresses: []string{"3.3.3.3", "4.4.4.4", "5.5.5.5"}},
+	}
+
+	want := []StatsDataPoint{
+		{
+			Value: 3,
+			MapData: []MapDataPoint{
+				{
+					Lat: 2,
+					Lon: 2,
+				},
+			},
+			Metadata: map[string]interface{}{
+				"ip_addresses": []string{"3.3.3.3", "4.4.4.4", "5.5.5.5"},
+			},
+		},
+		{
+			Value: 2,
+			MapData: []MapDataPoint{
+				{
+					Lat: 0,
+					Lon: 0,
+				},
+			},
+			Metadata: map[string]interface{}{
+				"ip_addresses": []string{"0.0.0.0", "1.1.1.1"},
+			},
+		},
+		{
+			Value: 1,
+			MapData: []MapDataPoint{
+				{
+					Lat: 1,
+					Lon: 1,
+				},
+			},
+			Metadata: map[string]interface{}{
+				"ip_addresses": []string{"2.2.2.2"},
+			},
+		},
+	}
+
+	got := createMostIpAddressesData(aggregatedLogs)
+
+	if got[0].Value.(int) != want[0].Value.(int) ||
+		got[1].Value.(int) != want[1].Value.(int) ||
+		got[2].Value.(int) != want[2].Value.(int) {
+
+		t.Error("Most ip addresses data was incorrect, got: ", got, ", want: ", want)
+	}
+}
+
+func TestCreateMostIngressPortsData(t *testing.T) {
+	aggregatedLogs := AggregatedLogs{
+		AggregatedLogEntry{Lat: 0, Lon: 0, IngressPorts: []string{"0", "1"}},
+		AggregatedLogEntry{Lat: 1, Lon: 1, IngressPorts: []string{"2"}},
+		AggregatedLogEntry{Lat: 2, Lon: 2, IngressPorts: []string{"3", "4", "5"}},
+	}
+
+	want := []StatsDataPoint{
+		{
+			Value: 3,
+			MapData: []MapDataPoint{
+				{
+					Lat: 2,
+					Lon: 2,
+				},
+			},
+			Metadata: map[string]interface{}{
+				"ingress_ports": []string{"3", "4", "5"},
+			},
+		},
+		{
+			Value: 2,
+			MapData: []MapDataPoint{
+				{
+					Lat: 0,
+					Lon: 0,
+				},
+			},
+			Metadata: map[string]interface{}{
+				"ingress_ports": []string{"0", "1"},
+			},
+		},
+		{
+			Value: 1,
+			MapData: []MapDataPoint{
+				{
+					Lat: 1,
+					Lon: 1,
+				},
+			},
+			Metadata: map[string]interface{}{
+				"ingress_ports": []string{"2"},
+			},
+		},
+	}
+
+	got := createMostIngressPortsData(aggregatedLogs)
+
+	if got[0].Value.(int) != want[0].Value.(int) ||
+		got[1].Value.(int) != want[1].Value.(int) ||
+		got[2].Value.(int) != want[2].Value.(int) {
+
+		t.Error("Most ingress ports data was incorrect, got: ", got, ", want: ", want)
 	}
 }
