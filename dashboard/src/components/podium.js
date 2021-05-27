@@ -17,21 +17,21 @@ const Podium = props => {
                     <Card.Text>{props.title}</Card.Text>
                 </Card.Body>
             </Card>
-            <Card className={"podium-card-" + props.type}>
+            <Card>
                 <Card.Body>
                     <Card.Img className="podium-medal-image" src={GoldMedal} />
                     <Card.Text className={`${props.isDataLoaded ? "" : "loading"} ${"podium-text-" + props.type}`}>{props.data[0].value}</Card.Text>
                 </Card.Body>
                 <Card.Footer className="podium-gold-footer" />
             </Card>
-            <Card className={"podium-card-" + props.type}>
+            <Card>
                 <Card.Body>
                     <Card.Img className="podium-medal-image" src={SilverMedal} />
                     <Card.Text className={`${props.isDataLoaded ? "" : "loading"} ${"podium-text-" + props.type}`}>{props.data[1].value}</Card.Text>
                 </Card.Body>
                 <Card.Footer className="podium-silver-footer" />
             </Card>
-            <Card className={"podium-card-" + props.type}>
+            <Card>
                 <Card.Body>
                     <Card.Img className="podium-medal-image" src={BronzeMedal} />
                     <Card.Text className={`${props.isDataLoaded ? "" : "loading"} ${"podium-text-" + props.type}`}>{props.data[2].value}</Card.Text>

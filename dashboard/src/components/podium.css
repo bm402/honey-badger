@@ -23,18 +23,15 @@
     width: 4rem !important;
 }
 
-.podium-card-number {
-    font-size: x-large;
-}
-
-.podium-card-string {
-    font-size: small;
-}
-
 .podium-text-number, .podium-text-string {
     margin-top: .5rem;
+    font-size: x-large;
     font-weight: bold;
     min-height: 1.5em;
+    min-width: 4em;
+    white-space: nowrap;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
 }
 
 .podium-gold-footer, .podium-silver-footer, .podium-bronze-footer {
