@@ -7,8 +7,11 @@ const Navbar = () => {
             <BSNavbar.Brand href="/">Honey Badger</BSNavbar.Brand>
             <BSNavbar.Toggle aria-controls="basic-navbar-nav" />
             <BSNavbar.Collapse id="basic-navbar-nav">
-                <BSNav className="mr-auto">
+                <BSNav>
                     <BSNav.Link href="/heatmap">Heatmap</BSNav.Link>
+                </BSNav>
+                <BSNav>
+                    <BSNav.Link href="/stats">Stats</BSNav.Link>
                 </BSNav>
             </BSNavbar.Collapse>
         </BSNavbar>

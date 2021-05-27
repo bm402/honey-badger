@@ -1,6 +1,6 @@
-import React from 'react';
 import { MapContainer, TileLayer } from 'react-leaflet'
 import HeatmapLayer from './heatmap-layer'
+
 import './heatmap.css';
 
 const Heatmap = () => {
