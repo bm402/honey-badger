@@ -1,0 +1,26 @@
+{
+  "files": {
+    "main.css": "/honey-badger/static/css/main.404dc338.chunk.css",
+    "main.js": "/honey-badger/static/js/main.651702e2.chunk.js",
+    "main.js.map": "/honey-badger/static/js/main.651702e2.chunk.js.map",
+    "runtime-main.js": "/honey-badger/static/js/runtime-main.e3f16d1e.js",
+    "runtime-main.js.map": "/honey-badger/static/js/runtime-main.e3f16d1e.js.map",
+    "static/css/2.4c97ca4f.chunk.css": "/honey-badger/static/css/2.4c97ca4f.chunk.css",
+    "static/js/2.d2e4c19f.chunk.js": "/honey-badger/static/js/2.d2e4c19f.chunk.js",
+    "static/js/2.d2e4c19f.chunk.js.map": "/honey-badger/static/js/2.d2e4c19f.chunk.js.map",
+    "index.html": "/honey-badger/index.html",
+    "static/css/2.4c97ca4f.chunk.css.map": "/honey-badger/static/css/2.4c97ca4f.chunk.css.map",
+    "static/css/main.404dc338.chunk.css.map": "/honey-badger/static/css/main.404dc338.chunk.css.map",
+    "static/js/2.d2e4c19f.chunk.js.LICENSE.txt": "/honey-badger/static/js/2.d2e4c19f.chunk.js.LICENSE.txt",
+    "static/media/bronze.d1bf6559.jpg": "/honey-badger/static/media/bronze.d1bf6559.jpg",
+    "static/media/gold.7b323ec2.jpg": "/honey-badger/static/media/gold.7b323ec2.jpg",
+    "static/media/silver.9a7c5b0e.jpg": "/honey-badger/static/media/silver.9a7c5b0e.jpg"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.e3f16d1e.js",
+    "static/css/2.4c97ca4f.chunk.css",
+    "static/js/2.d2e4c19f.chunk.js",
+    "static/css/main.404dc338.chunk.css",
+    "static/js/main.651702e2.chunk.js"
+  ]
+}
