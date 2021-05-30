@@ -6,15 +6,15 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 )
 
 // struct for ip location data
 type IpLocationData struct {
-	Location string
-	Lat      float64
-	Lon      float64
+	City    string
+	Country string
+	Lat     float64
+	Lon     float64
 }
 
 // retrieves ip location data from ip-api.com
@@ -25,7 +25,7 @@ func getIpLocationData(ipAddress string) IpLocationData {
 		return ipLocationData
 	}
 
-	response, err := http.Get("http://ip-api.com/json/" + ipAddress + "?fields=49369")
+	response, err := http.Get("http://ip-api.com/json/" + ipAddress + "?fields=49361")
 	if err != nil {
 		log.Fatal("Error querying the ip-api: ", err.Error())
 	}
@@ -55,35 +55,17 @@ func getIpLocationData(ipAddress string) IpLocationData {
 		log.Fatal("Error unmarshalling body params from ip-api: ", err.Error())
 	}
 
-	city := getOrEmptyString(bodyParams, "city")
-	state := getOrEmptyString(bodyParams, "regionName")
-	country := getOrEmptyString(bodyParams, "country")
-
 	ipLocationData := IpLocationData{
-		Location: createLocationString(city, state, country),
-		Lat:      getOrEmptyFloat(bodyParams, "lat"),
-		Lon:      getOrEmptyFloat(bodyParams, "lon"),
+		City:    getOrEmptyString(bodyParams, "city"),
+		Country: getOrEmptyString(bodyParams, "country"),
+		Lat:     getOrEmptyFloat(bodyParams, "lat"),
+		Lon:     getOrEmptyFloat(bodyParams, "lon"),
 	}
 
 	// write to cache
 	ipApiCache[ipAddress] = ipLocationData
 
 	return ipLocationData
-}
-
-// generates a location string in the format "City, State, Country"
-func createLocationString(city, state, country string) string {
-	locations := make([]string, 0)
-	if len(city) > 0 {
-		locations = append(locations, city)
-	}
-	if len(state) > 0 {
-		locations = append(locations, state)
-	}
-	if len(country) > 0 {
-		locations = append(locations, country)
-	}
-	return strings.Join(locations, ", ")
 }
 
 // gets string from map or returns empty string if it does not exist

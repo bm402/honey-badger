@@ -16,7 +16,8 @@ type RawLogEntry struct {
 	IngressPort string  `json:"ingress_port"`
 	Timestamp   int64   `json:"timestamp"`
 	IpAddress   string  `json:"ip_address"`
-	Location    string  `json:"location"`
+	City        string  `json:"city"`
+	Country     string  `json:"country"`
 	Lat         float64 `json:"lat"`
 	Lon         float64 `json:"lon"`
 	Input       string  `json:"input"`
@@ -37,7 +38,8 @@ func writeInputsToRawLogsTable(conn net.Conn, port string, input string) {
 		IngressPort: port,
 		Timestamp:   timestamp,
 		IpAddress:   ipAddress,
-		Location:    ipLocationData.Location,
+		City:        ipLocationData.City,
+		Country:     ipLocationData.Country,
 		Lat:         ipLocationData.Lat,
 		Lon:         ipLocationData.Lon,
 		Input:       input,

@@ -16,7 +16,8 @@ type RawLogEntry struct {
 	IngressPort string  `json:"ingress_port"`
 	Timestamp   int64   `json:"timestamp"`
 	IpAddress   string  `json:"ip_address"`
-	Location    string  `json:"location"`
+	City        string  `json:"city"`
+	Country     string  `json:"country"`
 	Lat         float64 `json:"lat"`
 	Lon         float64 `json:"lon"`
 	Input       string  `json:"input"`
@@ -27,7 +28,8 @@ type AggregatedLogEntry struct {
 	LatLon       string   `json:"lat_lon"`
 	Lat          float64  `json:"lat"`
 	Lon          float64  `json:"lon"`
-	Location     string   `json:"location"`
+	City         string   `json:"city"`
+	Country      string   `json:"country"`
 	IpAddresses  []string `json:"ip_addresses"`
 	IngressPorts []string `json:"ingress_ports"`
 	Inputs       []string `json:"inputs"`
@@ -64,7 +66,8 @@ func aggregateDynamoDBEvent(event events.DynamoDBEvent) error {
 				LatLon:       fmt.Sprintf("%f,%f", rawLogEntry.Lat, rawLogEntry.Lon),
 				Lat:          rawLogEntry.Lat,
 				Lon:          rawLogEntry.Lon,
-				Location:     rawLogEntry.Location,
+				City:         rawLogEntry.City,
+				Country:      rawLogEntry.Country,
 				IpAddresses:  []string{rawLogEntry.IpAddress},
 				IngressPorts: []string{rawLogEntry.IngressPort},
 				Inputs:       []string{rawLogEntry.Input},
