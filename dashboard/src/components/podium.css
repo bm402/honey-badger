@@ -25,6 +25,10 @@
     }
 }
 
+.podium-data-card {
+    cursor: pointer;
+}
+
 .podium-title-text {
     font-size: large;
     display: flex;
@@ -61,4 +65,9 @@
 
 .podium-bronze-footer {
     background: peru !important;
+}
+
+.statsmap {
+    width: 100%;
+    padding-top: 100%;
 }

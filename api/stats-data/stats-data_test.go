@@ -81,9 +81,15 @@ func TestCreateMostConnectionsData(t *testing.T) {
 					Lon: 1,
 				},
 			},
-			Metadata: map[string]interface{}{
-				"ingress_ports": []string{"1"},
-				"ip_addresses":  []string{"1.1.1.1"},
+			Metadata: map[string]MetadataItem{
+				"ingress_ports": {
+					Title: "Ingress ports",
+					Value: []string{"1"},
+				},
+				"ip_addresses": {
+					Title: "IP addresses",
+					Value: []string{"1.1.1.1"},
+				},
 			},
 		},
 		{
@@ -94,9 +100,15 @@ func TestCreateMostConnectionsData(t *testing.T) {
 					Lon: 0,
 				},
 			},
-			Metadata: map[string]interface{}{
-				"ingress_ports": []string{"0"},
-				"ip_addresses":  []string{"0.0.0.0"},
+			Metadata: map[string]MetadataItem{
+				"ingress_ports": {
+					Title: "Ingress ports",
+					Value: []string{"0"},
+				},
+				"ip_addresses": {
+					Title: "IP addresses",
+					Value: []string{"0.0.0.0"},
+				},
 			},
 		},
 		{
@@ -107,9 +119,15 @@ func TestCreateMostConnectionsData(t *testing.T) {
 					Lon: 3,
 				},
 			},
-			Metadata: map[string]interface{}{
-				"ingress_ports": []string{"3"},
-				"ip_addresses":  []string{"3.3.3.3"},
+			Metadata: map[string]MetadataItem{
+				"ingress_ports": {
+					Title: "Ingress ports",
+					Value: []string{"3"},
+				},
+				"ip_addresses": {
+					Title: "IP addresses",
+					Value: []string{"3.3.3.3"},
+				},
 			},
 		},
 	}
@@ -140,20 +158,29 @@ func TestCreateMostActiveCitiesData(t *testing.T) {
 				{
 					Lat: 2,
 					Lon: 2,
-					Metadata: map[string]interface{}{
-						"connections": 4,
+					Metadata: map[string]MetadataItem{
+						"connections": {
+							Title: "Connections",
+							Value: 4,
+						},
 					},
 				},
 				{
 					Lat: 4,
 					Lon: 4,
-					Metadata: map[string]interface{}{
-						"connections": 5,
+					Metadata: map[string]MetadataItem{
+						"connections": {
+							Title: "Connections",
+							Value: 5,
+						},
 					},
 				},
 			},
-			Metadata: map[string]interface{}{
-				"connections": 9,
+			Metadata: map[string]MetadataItem{
+				"connections": {
+					Title: "Connections",
+					Value: 9,
+				},
 			},
 		},
 		{
@@ -162,13 +189,19 @@ func TestCreateMostActiveCitiesData(t *testing.T) {
 				{
 					Lat: 1,
 					Lon: 1,
-					Metadata: map[string]interface{}{
-						"connections": 8,
+					Metadata: map[string]MetadataItem{
+						"connections": {
+							Title: "Connections",
+							Value: 8,
+						},
 					},
 				},
 			},
-			Metadata: map[string]interface{}{
-				"connections": 8,
+			Metadata: map[string]MetadataItem{
+				"connections": {
+					Title: "Connections",
+					Value: 8,
+				},
 			},
 		},
 		{
@@ -177,13 +210,19 @@ func TestCreateMostActiveCitiesData(t *testing.T) {
 				{
 					Lat: 3,
 					Lon: 3,
-					Metadata: map[string]interface{}{
-						"connections": 6,
+					Metadata: map[string]MetadataItem{
+						"connections": {
+							Title: "Connections",
+							Value: 6,
+						},
 					},
 				},
 			},
-			Metadata: map[string]interface{}{
-				"connections": 6,
+			Metadata: map[string]MetadataItem{
+				"connections": {
+					Title: "Connections",
+					Value: 6,
+				},
 			},
 		},
 	}
@@ -214,20 +253,29 @@ func TestCreateMostActiveCountriesData(t *testing.T) {
 				{
 					Lat: 2,
 					Lon: 2,
-					Metadata: map[string]interface{}{
-						"connections": 4,
+					Metadata: map[string]MetadataItem{
+						"connections": {
+							Title: "Connections",
+							Value: 4,
+						},
 					},
 				},
 				{
 					Lat: 4,
 					Lon: 4,
-					Metadata: map[string]interface{}{
-						"connections": 5,
+					Metadata: map[string]MetadataItem{
+						"connections": {
+							Title: "Connections",
+							Value: 5,
+						},
 					},
 				},
 			},
-			Metadata: map[string]interface{}{
-				"connections": 9,
+			Metadata: map[string]MetadataItem{
+				"connections": {
+					Title: "Connections",
+					Value: 9,
+				},
 			},
 		},
 		{
@@ -236,13 +284,19 @@ func TestCreateMostActiveCountriesData(t *testing.T) {
 				{
 					Lat: 1,
 					Lon: 1,
-					Metadata: map[string]interface{}{
-						"connections": 8,
+					Metadata: map[string]MetadataItem{
+						"connections": {
+							Title: "Connections",
+							Value: 8,
+						},
 					},
 				},
 			},
-			Metadata: map[string]interface{}{
-				"connections": 8,
+			Metadata: map[string]MetadataItem{
+				"connections": {
+					Title: "Connections",
+					Value: 8,
+				},
 			},
 		},
 		{
@@ -251,13 +305,19 @@ func TestCreateMostActiveCountriesData(t *testing.T) {
 				{
 					Lat: 3,
 					Lon: 3,
-					Metadata: map[string]interface{}{
-						"connections": 6,
+					Metadata: map[string]MetadataItem{
+						"connections": {
+							Title: "Connections",
+							Value: 6,
+						},
 					},
 				},
 			},
-			Metadata: map[string]interface{}{
-				"connections": 6,
+			Metadata: map[string]MetadataItem{
+				"connections": {
+					Title: "Connections",
+					Value: 6,
+				},
 			},
 		},
 	}
@@ -288,8 +348,11 @@ func TestCreateMostIpAddressesData(t *testing.T) {
 					Lon: 2,
 				},
 			},
-			Metadata: map[string]interface{}{
-				"ip_addresses": []string{"3.3.3.3", "4.4.4.4", "5.5.5.5"},
+			Metadata: map[string]MetadataItem{
+				"ip_addresses": {
+					Title: "IP addresses",
+					Value: []string{"3.3.3.3", "4.4.4.4", "5.5.5.5"},
+				},
 			},
 		},
 		{
@@ -300,8 +363,11 @@ func TestCreateMostIpAddressesData(t *testing.T) {
 					Lon: 0,
 				},
 			},
-			Metadata: map[string]interface{}{
-				"ip_addresses": []string{"0.0.0.0", "1.1.1.1"},
+			Metadata: map[string]MetadataItem{
+				"ip_addresses": {
+					Title: "IP addresses",
+					Value: []string{"0.0.0.0", "1.1.1.1"},
+				},
 			},
 		},
 		{
@@ -312,8 +378,11 @@ func TestCreateMostIpAddressesData(t *testing.T) {
 					Lon: 1,
 				},
 			},
-			Metadata: map[string]interface{}{
-				"ip_addresses": []string{"2.2.2.2"},
+			Metadata: map[string]MetadataItem{
+				"ip_addresses": {
+					Title: "IP addresses",
+					Value: []string{"2.2.2.2"},
+				},
 			},
 		},
 	}
@@ -344,8 +413,11 @@ func TestCreateMostIngressPortsData(t *testing.T) {
 					Lon: 2,
 				},
 			},
-			Metadata: map[string]interface{}{
-				"ingress_ports": []string{"3", "4", "5"},
+			Metadata: map[string]MetadataItem{
+				"ingress_ports": {
+					Title: "Ingress ports",
+					Value: []string{"3", "4", "5"},
+				},
 			},
 		},
 		{
@@ -356,8 +428,11 @@ func TestCreateMostIngressPortsData(t *testing.T) {
 					Lon: 0,
 				},
 			},
-			Metadata: map[string]interface{}{
-				"ingress_ports": []string{"0", "1"},
+			Metadata: map[string]MetadataItem{
+				"ingress_ports": {
+					Title: "Ingress ports",
+					Value: []string{"0", "1"},
+				},
 			},
 		},
 		{
@@ -368,8 +443,11 @@ func TestCreateMostIngressPortsData(t *testing.T) {
 					Lon: 1,
 				},
 			},
-			Metadata: map[string]interface{}{
-				"ingress_ports": []string{"2"},
+			Metadata: map[string]MetadataItem{
+				"ingress_ports": {
+					Title: "Ingress ports",
+					Value: []string{"2"},
+				},
 			},
 		},
 	}

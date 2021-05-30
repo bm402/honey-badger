@@ -28,16 +28,22 @@ type StatsData struct {
 
 // struct for stats data point
 type StatsDataPoint struct {
-	Value    interface{}            `json:"value"`
-	MapData  []MapDataPoint         `json:"map_data"`
-	Metadata map[string]interface{} `json:"metadata"`
+	Value    interface{}             `json:"value"`
+	MapData  []MapDataPoint          `json:"map_data"`
+	Metadata map[string]MetadataItem `json:"metadata"`
 }
 
 // struct for map data point
 type MapDataPoint struct {
-	Lat      float64                `json:"lat"`
-	Lon      float64                `json:"lon"`
-	Metadata map[string]interface{} `json:"metadata"`
+	Lat      float64                 `json:"lat"`
+	Lon      float64                 `json:"lon"`
+	Metadata map[string]MetadataItem `json:"metadata"`
+}
+
+// struct for a metadata item
+type MetadataItem struct {
+	Title string      `json:"title"`
+	Value interface{} `json:"value"`
 }
 
 // type for unmarshalling aggregated logs from dynamodb
@@ -173,9 +179,15 @@ func createMostConnectionsData(aggregatedLogs AggregatedLogs) []StatsDataPoint {
 					Lon: podiumEntry.Lon,
 				},
 			},
-			Metadata: map[string]interface{}{
-				"ingress_ports": podiumEntry.IngressPorts,
-				"ip_addresses":  podiumEntry.IpAddresses,
+			Metadata: map[string]MetadataItem{
+				"ingress_ports": {
+					Title: "Ingress ports",
+					Value: podiumEntry.IngressPorts,
+				},
+				"ip_addresses": {
+					Title: "IP addresses",
+					Value: podiumEntry.IpAddresses,
+				},
 			},
 		}
 	}
@@ -195,12 +207,18 @@ func createMostActiveCitiesData(aggregatedLogs AggregatedLogs) []StatsDataPoint 
 			combinedLogEntry.MapData = append(combinedLogEntry.MapData, MapDataPoint{
 				Lat: aggregatedLogEntry.Lat,
 				Lon: aggregatedLogEntry.Lon,
-				Metadata: map[string]interface{}{
-					"connections": aggregatedLogEntry.Count,
+				Metadata: map[string]MetadataItem{
+					"connections": {
+						Title: "Connections",
+						Value: aggregatedLogEntry.Count,
+					},
 				},
 			})
-			combinedLogEntry.Metadata["connections"] =
-				combinedLogEntry.Metadata["connections"].(int) + aggregatedLogEntry.Count
+
+			combinedLogEntry.Metadata["connections"] = MetadataItem{
+				Title: combinedLogEntry.Metadata["connections"].Title,
+				Value: combinedLogEntry.Metadata["connections"].Value.(int) + aggregatedLogEntry.Count,
+			}
 
 			combinedLogs[aggregatedLogEntry.City] = combinedLogEntry
 
@@ -212,13 +230,19 @@ func createMostActiveCitiesData(aggregatedLogs AggregatedLogs) []StatsDataPoint 
 					{
 						Lat: aggregatedLogEntry.Lat,
 						Lon: aggregatedLogEntry.Lon,
-						Metadata: map[string]interface{}{
-							"connections": aggregatedLogEntry.Count,
+						Metadata: map[string]MetadataItem{
+							"connections": {
+								Title: "Connections",
+								Value: aggregatedLogEntry.Count,
+							},
 						},
 					},
 				},
-				Metadata: map[string]interface{}{
-					"connections": aggregatedLogEntry.Count,
+				Metadata: map[string]MetadataItem{
+					"connections": {
+						Title: "Connections",
+						Value: aggregatedLogEntry.Count,
+					},
 				},
 			}
 		}
@@ -251,12 +275,18 @@ func createMostActiveCountriesData(aggregatedLogs AggregatedLogs) []StatsDataPoi
 			combinedLogEntry.MapData = append(combinedLogEntry.MapData, MapDataPoint{
 				Lat: aggregatedLogEntry.Lat,
 				Lon: aggregatedLogEntry.Lon,
-				Metadata: map[string]interface{}{
-					"connections": aggregatedLogEntry.Count,
+				Metadata: map[string]MetadataItem{
+					"connections": {
+						Title: "Connections",
+						Value: aggregatedLogEntry.Count,
+					},
 				},
 			})
-			combinedLogEntry.Metadata["connections"] =
-				combinedLogEntry.Metadata["connections"].(int) + aggregatedLogEntry.Count
+
+			combinedLogEntry.Metadata["connections"] = MetadataItem{
+				Title: combinedLogEntry.Metadata["connections"].Title,
+				Value: combinedLogEntry.Metadata["connections"].Value.(int) + aggregatedLogEntry.Count,
+			}
 
 			combinedLogs[aggregatedLogEntry.Country] = combinedLogEntry
 
@@ -268,13 +298,19 @@ func createMostActiveCountriesData(aggregatedLogs AggregatedLogs) []StatsDataPoi
 					{
 						Lat: aggregatedLogEntry.Lat,
 						Lon: aggregatedLogEntry.Lon,
-						Metadata: map[string]interface{}{
-							"connections": aggregatedLogEntry.Count,
+						Metadata: map[string]MetadataItem{
+							"connections": {
+								Title: "Connections",
+								Value: aggregatedLogEntry.Count,
+							},
 						},
 					},
 				},
-				Metadata: map[string]interface{}{
-					"connections": aggregatedLogEntry.Count,
+				Metadata: map[string]MetadataItem{
+					"connections": {
+						Title: "Connections",
+						Value: aggregatedLogEntry.Count,
+					},
 				},
 			}
 		}
@@ -317,8 +353,11 @@ func createMostIpAddressesData(aggregatedLogs AggregatedLogs) []StatsDataPoint {
 					Lon: podiumEntry.Lon,
 				},
 			},
-			Metadata: map[string]interface{}{
-				"ip_addresses": podiumEntry.IpAddresses,
+			Metadata: map[string]MetadataItem{
+				"ip_addresses": {
+					Title: "IP addresses",
+					Value: podiumEntry.IpAddresses,
+				},
 			},
 		}
 	}
@@ -348,8 +387,11 @@ func createMostIngressPortsData(aggregatedLogs AggregatedLogs) []StatsDataPoint 
 					Lon: podiumEntry.Lon,
 				},
 			},
-			Metadata: map[string]interface{}{
-				"ingress_ports": podiumEntry.IngressPorts,
+			Metadata: map[string]MetadataItem{
+				"ingress_ports": {
+					Title: "Ingress ports",
+					Value: podiumEntry.IngressPorts,
+				},
 			},
 		}
 	}
@@ -392,14 +434,14 @@ func (podium *AggregatedLogEntryPodium) insertByIngressPorts(entry AggregatedLog
 
 // inserts combined log entry into the top 3 based on connections
 func (podium *StatsDataPointPodium) insertByMetadataConnections(entry StatsDataPoint) {
-	if podium[0].Metadata["connections"] == nil ||
-		entry.Metadata["connections"].(int) > podium[0].Metadata["connections"].(int) {
+	if podium[0].Metadata["connections"].Value == nil ||
+		entry.Metadata["connections"].Value.(int) > podium[0].Metadata["connections"].Value.(int) {
 		podium[0], podium[1], podium[2] = entry, podium[0], podium[1]
-	} else if podium[1].Metadata["connections"] == nil ||
-		entry.Metadata["connections"].(int) > podium[1].Metadata["connections"].(int) {
+	} else if podium[1].Metadata["connections"].Value == nil ||
+		entry.Metadata["connections"].Value.(int) > podium[1].Metadata["connections"].Value.(int) {
 		podium[1], podium[2] = entry, podium[1]
-	} else if podium[2].Metadata["connections"] == nil ||
-		entry.Metadata["connections"].(int) > podium[2].Metadata["connections"].(int) {
+	} else if podium[2].Metadata["connections"].Value == nil ||
+		entry.Metadata["connections"].Value.(int) > podium[2].Metadata["connections"].Value.(int) {
 		podium[2] = entry
 	}
 }
