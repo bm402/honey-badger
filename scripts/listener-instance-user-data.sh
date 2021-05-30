@@ -40,7 +40,7 @@ if [ ! -d honey-badger ]; then
 fi
 cd honey-badger
 git fetch --all
-git checkout stats
+git checkout main
 git pull
 
 # run listeners
