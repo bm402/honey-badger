@@ -45,8 +45,16 @@ const HeatmapLayer = () => {
                 };
                 
                 L.heatLayer(normalisedDataPoints, heatmapConfig).addTo(map);
+
+                let markerBounds = L.latLngBounds([]);
+                normalisedDataPoints.forEach(normalisedDataPoint => {
+                    markerBounds.extend([normalisedDataPoint[0], normalisedDataPoint[1]]);
+                });
+
+                map.fitBounds(markerBounds);
             })
             .catch(console.log);
+
     }, [map]);
 
     return null
