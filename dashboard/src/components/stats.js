@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import Podium from './podium'
 
@@ -14,7 +14,7 @@ const Stats = () => {
         "most_ingress_ports": [{},{},{}],
     });
 
-    React.useEffect(() => {
+    useEffect(() => {
         fetch('https://omf1aavgfc.execute-api.eu-west-2.amazonaws.com/prod/v1/stats-data')
             .then(res => res.json())
             .then(data => {

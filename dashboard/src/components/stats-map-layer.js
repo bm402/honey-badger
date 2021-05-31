@@ -18,7 +18,7 @@ const StatsMapLayer = props => {
         map.fitBounds(markerBounds, {
             maxZoom: 10,
         });
-    });
+    }, [map, props.mapData]);
 
     return null;
 };
