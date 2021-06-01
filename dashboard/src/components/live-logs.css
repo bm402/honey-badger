@@ -1,0 +1,51 @@
+.live-logs-page {
+    width: 100%;
+    padding: 3em !important;
+}
+
+.live-logs-control-panel {
+    margin-bottom: 1.5em;
+}
+
+.live-logs-control-panel-button {
+    margin-right: .5em;
+}
+
+.live-logs-status {
+    display: inline-block;
+    margin-left: .75em;
+    min-width: 10em;
+    text-align: left;
+}
+
+.live-logs-log-section {
+    width: 100%;
+}
+
+.live-log-entry-field {
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+.live-log-entry-field.toggle {
+    width: 2em;
+    text-align: center;
+}
+
+.live-log-entry-field.timestamp {
+    width: 12em;
+}
+
+.live-log-entry-field.ingress-port {
+    width: 4em;
+}
+
+.live-log-entry-field.ip-address {
+    width: 10em;
+}
+
+.live-log-entry-field.location {
+    width: 16em;
+}
