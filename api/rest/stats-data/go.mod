@@ -1,4 +1,4 @@
-module github.com/bncrypted/honey-badger/api/stats-data
+module github.com/bncrypted/honey-badger/api/rest/stats-data
 
 go 1.14
 

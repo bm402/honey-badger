@@ -1,4 +1,4 @@
-module github.com/bncrypted/honey-badger/api/heatmap-data
+module github.com/bncrypted/honey-badger/api/rest/heatmap-data
 
 go 1.14
 

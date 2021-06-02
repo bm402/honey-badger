@@ -13,6 +13,9 @@ const Navbar = () => {
                 <BSNav>
                     <BSNav.Link href="/honey-badger/#/stats">Stats</BSNav.Link>
                 </BSNav>
+                <BSNav>
+                    <BSNav.Link href="/honey-badger/#/live-logs">Live logs</BSNav.Link>
+                </BSNav>
             </BSNavbar.Collapse>
         </BSNavbar>
     );
