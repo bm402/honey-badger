@@ -36,7 +36,7 @@ export AWS_REGION=$(curl http://169.254.169.254/latest/meta-data/placement/regio
 # download listener code
 cd ~
 if [ ! -d honey-badger ]; then
-    git clone https://github.com/bncrypted/honey-badger.git
+    git clone https://github.com/bm402/honey-badger.git
 fi
 cd honey-badger
 git fetch --all

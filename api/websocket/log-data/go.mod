@@ -1,4 +1,4 @@
-module github.com/bncrypted/honey-badger/api/websocket/log-data
+module github.com/bm402/honey-badger/api/websocket/log-data
 
 go 1.14
 

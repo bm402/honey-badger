@@ -1,4 +1,4 @@
-module github.com/bncrypted/honey-badger/aggregator
+module github.com/bm402/honey-badger/aggregator
 
 go 1.14
 
