@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/honey-badger/static/css/main.8e26e46d.chunk.css",
-    "main.js": "/honey-badger/static/js/main.b889433d.chunk.js",
-    "main.js.map": "/honey-badger/static/js/main.b889433d.chunk.js.map",
+    "main.js": "/honey-badger/static/js/main.efd40473.chunk.js",
+    "main.js.map": "/honey-badger/static/js/main.efd40473.chunk.js.map",
     "runtime-main.js": "/honey-badger/static/js/runtime-main.e3f16d1e.js",
     "runtime-main.js.map": "/honey-badger/static/js/runtime-main.e3f16d1e.js.map",
     "static/css/2.4c97ca4f.chunk.css": "/honey-badger/static/css/2.4c97ca4f.chunk.css",
@@ -21,6 +21,6 @@
     "static/css/2.4c97ca4f.chunk.css",
     "static/js/2.8ec1a473.chunk.js",
     "static/css/main.8e26e46d.chunk.css",
-    "static/js/main.b889433d.chunk.js"
+    "static/js/main.efd40473.chunk.js"
   ]
 }
