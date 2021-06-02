@@ -22,7 +22,7 @@ const LiveLogs = () => {
         };
     
         websocket.onmessage = (message) => {
-            setLogEntries(logEntries => [JSON.parse(message.data), ...logEntries]);
+            setLogEntries(logEntries => [...logEntries, JSON.parse(message.data)]);
         };
 
         websocket.onclose = () => {
@@ -43,10 +43,10 @@ const LiveLogs = () => {
                 <div className="live-logs-status">Status: {status}</div>
             </div>
             <div className="live-logs-log-section">
-                <Table striped bordered hover size="sm">
+                <Table className="live-logs-table" striped bordered hover size="sm">
                     <thead>
                         <tr>
-                            <th className="live-log-entry-field toggle"></th>
+                            <th className="live-log-entry-field-toggle"></th>
                             <th className="live-log-entry-field timestamp">Time</th>
                             <th className="live-log-entry-field ingress-port">Port</th>
                             <th className="live-log-entry-field ip-address">IP</th>
