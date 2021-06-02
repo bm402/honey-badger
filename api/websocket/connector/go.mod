@@ -1,4 +1,4 @@
-module github.com/bncrypted/honey-badger/api/websocket/connector
+module github.com/bm402/honey-badger/api/websocket/connector
 
 go 1.14
 

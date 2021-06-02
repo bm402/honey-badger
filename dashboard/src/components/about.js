@@ -26,7 +26,7 @@ const About = () => {
                 stats page which shows who is trying to connect to our server the most stubbornly, and
                 a live logs page where you can see details of the connection attempts in real time.
             </p>
-            <Button variant="dark" href="https://github.com/bncrypted/honey-badger">View project on GitHub</Button>
+            <Button variant="dark" href="https://github.com/bm402/honey-badger">View project on GitHub</Button>
         </div>
     );
 };

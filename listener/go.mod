@@ -1,4 +1,4 @@
-module github.com/bncrypted/honey-badger/listener
+module github.com/bm402/honey-badger/listener
 
 go 1.14
 

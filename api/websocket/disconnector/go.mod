@@ -1,4 +1,4 @@
-module github.com/bncrypted/honey-badger/api/websocket/disconnector
+module github.com/bm402/honey-badger/api/websocket/disconnector
 
 go 1.14
 
