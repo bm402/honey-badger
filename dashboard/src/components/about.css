@@ -1,0 +1,18 @@
+.about-page {
+    margin: 0 auto;
+    padding: 4em 2em;
+    max-width: 40em;
+    text-align: left !important;
+}
+
+.about-page h2 {
+    margin-bottom: 1em;
+}
+
+.about-page p {
+    margin-bottom: 1.5em !important;
+}
+
+.about-page a {
+    margin-top: 1.5em;
+}
