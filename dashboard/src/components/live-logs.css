@@ -11,6 +11,11 @@
     margin-right: .5em;
 }
 
+.live-logs-control-panel-icon {
+    height: 1em;
+    margin: .25em 0;
+}
+
 .live-logs-status {
     display: inline-block;
     margin-left: .75em;
@@ -36,6 +41,16 @@
     white-space: normal;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
+}
+
+.live-log-entry-toggle-icon {
+    height: 1em;
+    margin: .25em 0;
+}
+
+.live-log-entry.open .live-log-entry-toggle-icon {
+    transform: rotate(90deg);
+    transform-origin: center center;
 }
 
 .live-log-entry-field-toggle {
@@ -67,6 +82,10 @@
 }
 
 @media (max-width: 900px) {
+    .live-logs-page {
+        padding: 3em 2em !important;
+    }
+
     .live-log-entry-field.timestamp {
         display: none;
     }
@@ -91,6 +110,10 @@
 }
 
 @media (max-width: 700px) {
+    .live-logs-page {
+        padding: 2em 1em !important;
+    }
+
     .live-log-entry-field-toggle {
         width: 5%;
     }

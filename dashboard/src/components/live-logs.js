@@ -1,7 +1,10 @@
 import { useState } from 'react'
 import Button from 'react-bootstrap/Button'
 import Table from 'react-bootstrap/Table'
-import LiveLogEntry from './live-log-entry';
+import LiveLogEntry from './live-log-entry'
+
+import PlayIcon from '../images/play-icon.png'
+import StopIcon from '../images/stop-icon.png'
 
 import './live-logs.css'
 
@@ -38,8 +41,12 @@ const LiveLogs = () => {
     return (
         <div className="live-logs-page">
             <div className="live-logs-control-panel">
-                <Button className="live-logs-control-panel-button" variant="success" disabled={isListening} onClick={!isListening ? connectWebsocket : null}>{'\u25b6'}</Button>
-                <Button className="live-logs-control-panel-button" variant="danger" disabled={!isListening} onClick={isListening ? disconnectWebsocket : null}>{'\u25a0'}</Button>
+                <Button className="live-logs-control-panel-button" variant="success" disabled={isListening} onClick={!isListening ? connectWebsocket : null}>
+                    <img className="live-logs-control-panel-icon play" src={PlayIcon} alt="Connect" />
+                </Button>
+                <Button className="live-logs-control-panel-button" variant="danger" disabled={!isListening} onClick={isListening ? disconnectWebsocket : null}>
+                    <img className="live-logs-control-panel-icon stop" src={StopIcon} alt="Disconnect" />
+                </Button>
                 <div className="live-logs-status">Status: {status}</div>
             </div>
             <div className="live-logs-log-section">
